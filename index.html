@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Encuestas - FESPA</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- PapaParse CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  
+  <!-- Firebase App & Firestore Compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .star-rating svg { transition: transform 0.15s ease, fill 0.15s ease; }
+    .star-rating svg:hover { transform: scale(1.15); }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased flex flex-col justify-between">
+
+  <!-- ==================== HEADER GLOBAL ==================== -->
+  <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="./" class="flex items-center gap-2 text-indigo-600 font-bold text-xl tracking-tight">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+        </svg>
+        <span>FESPA Encuestas</span>
+      </a>
+      <div id="header-admin-link">
+        <button onclick="navigateToAdmin()" class="text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-indigo-600 transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-indigo-300">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          Admin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
+
+    <!-- 1. SPINNER DE CARGA GLOBAL -->
+    <div id="view-loading" class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-slate-500 font-medium text-sm">Cargando aplicación...</p>
+    </div>
+
+    <!-- 2. PANTALLA DE ESTADO / ERROR DE ENCUESTA -->
+    <div id="view-survey-status" class="hidden max-w-lg mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
+      <div id="status-icon" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"></div>
+      <h2 id="status-title" class="text-2xl font-bold text-slate-900 mb-2"></h2>
+      <p id="status-description" class="text-slate-600 text-sm mb-6"></p>
+      <div id="status-actions"></div>
+    </div>
+
+    <!-- 3. VISTA DE ENCUESTA PÚBLICA (?token=XYZ) -->
+    <div id="view-survey" class="hidden max-w-2xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-10">
+        <div class="border-b border-slate-100 pb-5 mb-8">
+          <span class="inline-block bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider mb-2">Encuesta de Opinión</span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Tu opinión es fundamental</h1>
+          <p class="text-slate-500 text-sm mt-1">Por favor completa las siguientes preguntas. Solo te tomará 1 minuto.</p>
+        </div>
+
+        <form id="survey-form" class="space-y-8">
+          <div id="survey-questions-container" class="space-y-8">
+            <!-- Inyección dinámica de preguntas -->
+          </div>
+
+          <div class="pt-6 border-t border-slate-100 flex justify-end">
+            <button type="submit" id="btn-submit-survey" class="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 transition active:scale-95 flex items-center justify-center gap-2">
+              <span>Enviar respuestas</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. PANTALLA DE ACCESO ADMIN (PIN) -->
+    <div id="view-admin-pin" class="hidden max-w-md mx-auto">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-1">Acceso Administrativo</h2>
+        <p class="text-sm text-slate-500 mb-6">Ingresa el PIN maestro para acceder al panel de control.</p>
+
+        <form id="admin-pin-form" class="space-y-4">
+          <div>
+            <input type="password" id="admin-pin-input" placeholder="••••••••" maxlength="12" class="w-full text-center tracking-widest text-2xl py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+            <p id="pin-error-msg" class="hidden text-rose-500 text-xs mt-2 font-medium">PIN incorrecto. Intenta de nuevo.</p>
+          </div>
+          <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow shadow-indigo-100">
+            Ingresar al Panel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 5. PANEL DE ADMINISTRACIÓN COMPLETO (#admin) -->
+    <div id="view-admin-dashboard" class="hidden space-y-6">
+      <!-- Barra superior de pestañas del Admin -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 tracking-tight">Panel de Control FESPA</h1>
+          <p class="text-xs text-slate-500">Gestión de preguntas, campañas CSV y dashboard métrico en tiempo real.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <nav class="flex space-x-1 bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
+            <button onclick="switchAdminTab('campaigns')" id="tab-btn-campaigns" class="px-4 py-2 rounded-lg bg-white text-indigo-600 shadow-sm transition">Campañas CSV</button>
+            <button onclick="switchAdminTab('questions')" id="tab-btn-questions" class="px-4 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Preguntas</button>
+            <button onclick="switchAdminTab('metrics')" id="tab-btn-metrics" class="px-4 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Dashboard & Gráficas</button>
+          </nav>
+          <button onclick="logoutAdmin()" title="Cerrar sesión" class="p-2 text-slate-400 hover:text-rose-600 transition rounded-lg hover:bg-rose-50">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: GESTOR DE CAMPAÑAS (SUBIDA CSV) -->
+      <section id="tab-content-campaigns" class="space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Generar Tokens mediante CSV</h2>
+              <p class="text-xs text-slate-500">Sube un archivo .csv con una columna nombrada <code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600 font-mono font-bold">Contacto</code> (email o teléfono).</p>
+            </div>
+            <label class="cursor-pointer inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition shadow shadow-indigo-100">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              </svg>
+              <span>Subir Archivo CSV</span>
+              <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+            </label>
+          </div>
+
+          <div id="csv-progress" class="hidden mb-4 p-3 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <span id="csv-progress-text">Procesando y guardando registros...</span>
+          </div>
+
+          <!-- Tabla de Seguimiento de Tokens -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-400 font-semibold text-xs uppercase tracking-wider bg-slate-50/50">
+                  <th class="py-3 px-4">Contacto</th>
+                  <th class="py-3 px-4">Enlace Personalizado</th>
+                  <th class="py-3 px-4">Estado</th>
+                  <th class="py-3 px-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tokens-table-body" class="divide-y divide-slate-100 font-normal">
+                <tr>
+                  <td colspan="4" class="py-8 text-center text-slate-400">Cargando lista de tokens...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MÓDULO DE PREGUNTAS -->
+      <section id="tab-content-questions" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario Crear Pregunta -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Nueva Pregunta</h2>
+          <p class="text-xs text-slate-500 mb-5">Agrega preguntas para tu encuesta activa.</p>
+
+          <form id="create-question-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Texto de la Pregunta</label>
+              <input type="text" id="new-q-text" required placeholder="Ej: ¿Qué tan satisfecho estás con el evento?" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Respuesta</label>
+              <select id="new-q-type" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                <option value="estrellas">1 a 5 Estrellas</option>
+                <option value="opcion_multiple">Opción Múltiple</option>
+                <option value="abierta">Respuesta Abierta (Texto)</option>
+              </select>
+            </div>
+
+            <div id="new-q-options-container" class="hidden">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Opciones (separadas por coma)</label>
+              <input type="text" id="new-q-options" placeholder="Excelente, Bueno, Regular, Malo" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <span class="text-[11px] text-slate-400">Separa cada opción con una coma (,).</span>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl transition shadow shadow-indigo-100">
+              Guardar Pregunta
+            </button>
+          </form>
+        </div>
+
+        <!-- Lista de Preguntas Creadas -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Preguntas Activas</h2>
+          <p class="text-xs text-slate-500 mb-4">Estas preguntas se mostrarán a los usuarios que accedan con su enlace.</p>
+
+          <div id="questions-list-container" class="space-y-3">
+            <p class="text-sm text-slate-400">Cargando preguntas...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: DASHBOARD Y EXPORTACIÓN -->
+      <section id="tab-content-metrics" class="hidden space-y-6">
+        <!-- Barra de Métricas Rápidas y Exportar -->
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="grid grid-cols-3 gap-4 sm:gap-8">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Envíos</p>
+              <h3 id="stat-total-tokens" class="text-2xl font-black text-slate-900">0</h3>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contestados</p>
+              <h3 id="stat-answered" class="text-2xl font-black text-emerald-600">0</h3>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tasa Resp.</p>
+              <h3 id="stat-rate" class="text-2xl font-black text-indigo-600">0%</h3>
+            </div>
+          </div>
+
+          <button onclick="exportResponsesToCSV()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-3 rounded-xl transition shadow shadow-emerald-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span>Descargar Respuestas (CSV)</span>
+          </button>
+        </div>
+
+        <!-- Contenedor dinámico de Gráficas Chart.js -->
+        <div id="charts-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Inyección dinámica de canvas de gráficas -->
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer class="py-6 border-t border-slate-200 text-center text-xs text-slate-400">
+    FESPA Encuestas &copy; SPA • HTML + Vanilla JS + Tailwind CSS + Firebase + Chart.js + PapaParse
+  </footer>
+
+  <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
+  <script>
+    // ----------------------------------------------------
+    // 1. CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+    // ----------------------------------------------------
+    // REEMPLAZA CON LAS CREDENCIALES DE TU PROYECTO EN FIREBASE CONSOLE
+    const firebaseConfig = {
+      apiKey: "AIzaSyDemoPlaceholderAPIKey1234567890",
+      authDomain: "tu-proyecto-demo.firebaseapp.com",
+      projectId: "tu-proyecto-demo",
+      storageBucket: "tu-proyecto-demo.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcdef1234567890"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    const MASTER_PIN = "10188852";
+    let activeChartInstances = [];
+
+    // ----------------------------------------------------
+    // 2. ENRUTADOR PRINCIPAL SPA
+    // ----------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      initApp();
+      window.addEventListener("hashchange", handleHashRouting);
+    });
+
+    async function initApp() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get("token");
+
+      if (token) {
+        await handleSurveyView(token.trim());
+      } else if (window.location.hash === "#admin") {
+        handleAdminAccess();
+      } else {
+        window.location.hash = "#admin";
+      }
+    }
+
+    function handleHashRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get("token")) {
+        if (window.location.hash === "#admin") {
+          handleAdminAccess();
+        }
+      }
+    }
+
+    function navigateToAdmin() {
+      if (window.location.search) {
+        window.location.href = window.location.pathname + "#admin";
+      } else {
+        window.location.hash = "#admin";
+        handleAdminAccess();
+      }
+    }
+
+    function hideAllViews() {
+      document.getElementById("view-loading").classList.add("hidden");
+      document.getElementById("view-survey-status").classList.add("hidden");
+      document.getElementById("view-survey").classList.add("hidden");
+      document.getElementById("view-admin-pin").classList.add("hidden");
+      document.getElementById("view-admin-dashboard").classList.add("hidden");
+    }
+
+    // ----------------------------------------------------
+    // 3. VISTA ENCUESTA (?token=XYZ)
+    // ----------------------------------------------------
+    async function handleSurveyView(token) {
+      hideAllViews();
+      document.getElementById("view-loading").classList.remove("hidden");
+
+      try {
+        const tokenDoc = await db.collection("tokens").doc(token).get();
+
+        if (!tokenDoc.exists) {
+          showSurveyStatus(
+            "error",
+            "Enlace No Válido",
+            "El token especificado no existe o no corresponde a una encuesta activa."
+          );
+          return;
+        }
+
+        const tokenData = tokenDoc.data();
+        if (tokenData.estado === "Contestado") {
+          showSurveyStatus(
+            "answered",
+            "Encuesta Ya Respondida",
+            "Esta encuesta ya ha sido completada previamente. ¡Muchas gracias por tu participación!"
+          );
+          return;
+        }
+
+        if (tokenData.estado !== "Pendiente") {
+          showSurveyStatus(
+            "error",
+            "Encuesta Inaccesible",
+            "El estado de este enlace no permite recibir respuestas adicionales."
+          );
+          return;
+        }
+
+        const questionsSnap = await db.collection("preguntas").orderBy("creadoEn", "asc").get();
+        if (questionsSnap.empty) {
+          showSurveyStatus(
+            "error",
+            "Sin Preguntas Disponibles",
+            "Actualmente no hay preguntas configuradas para esta encuesta."
+          );
+          return;
+        }
+
+        renderSurveyQuestions(questionsSnap.docs, token);
+      } catch (error) {
+        console.error("Error al validar token:", error);
+        showSurveyStatus(
+          "error",
+          "Error de Conexión",
+          "Ocurrió un problema de comunicación con la base de datos: " + error.message
+        );
+      }
+    }
+
+    function renderSurveyQuestions(questionDocs, token) {
+      hideAllViews();
+      const container = document.getElementById("survey-questions-container");
+      container.innerHTML = "";
+
+      questionDocs.forEach((doc, index) => {
+        const q = doc.data();
+        const qId = doc.id;
+        const qNum = index + 1;
+
+        const card = document.createElement("div");
+        card.className = "p-5 sm:p-6 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition";
+        card.dataset.questionId = qId;
+        card.dataset.questionType = q.tipo;
+
+        let inputHtml = "";
+
+        if (q.tipo === "estrellas") {
+          inputHtml = `
+            <div class="star-rating flex items-center gap-2 mt-3" data-rating-group="${qId}">
+              <input type="hidden" name="question_${qId}" id="input_${qId}" required>
+              ${[1, 2, 3, 4, 5].map(num => `
+                <button type="button" onclick="selectStar('${qId}', ${num})" data-star="${num}" class="p-1 text-slate-300 hover:text-amber-400 focus:outline-none transition">
+                  <svg class="w-8 h-8 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </button>
+              `).join('')}
+              <span id="star-label-${qId}" class="ml-2 text-xs font-semibold text-slate-400">Sin calificar</span>
+            </div>
+          `;
+        } else if (q.tipo === "opcion_multiple") {
+          const opciones = Array.isArray(q.opciones) ? q.opciones : [];
+          inputHtml = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3">
+              ${opciones.map((opt) => `
+                <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition text-sm">
+                  <input type="radio" name="question_${qId}" value="${opt.trim()}" required class="text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                  <span class="text-slate-700">${opt.trim()}</span>
+                </label>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          inputHtml = `
+            <div class="mt-3">
+              <textarea name="question_${qId}" required rows="3" placeholder="Escribe aquí tu respuesta u opinión..." class="w-full text-sm p-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"></textarea>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center">${qNum}</span>
+            <div class="flex-1">
+              <p class="font-semibold text-slate-900 text-base leading-snug">${q.texto}</p>
+              ${inputHtml}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      const form = document.getElementById("survey-form");
+      form.onsubmit = (e) => submitSurvey(e, token, questionDocs);
+
+      document.getElementById("view-survey").classList.remove("hidden");
+    }
+
+    function selectStar(qId, score) {
+      const hiddenInput = document.getElementById(`input_${qId}`);
+      hiddenInput.value = score;
+
+      const group = document.querySelector(`[data-rating-group="${qId}"]`);
+      const buttons = group.querySelectorAll("button[data-star]");
+      const label = document.getElementById(`star-label-${qId}`);
+
+      buttons.forEach(btn => {
+        const val = parseInt(btn.dataset.star, 10);
+        if (val <= score) {
+          btn.classList.add("text-amber-400");
+          btn.classList.remove("text-slate-300");
+        } else {
+          btn.classList.remove("text-amber-400");
+          btn.classList.add("text-slate-300");
+        }
+      });
+
+      const labels = ["Muy Malo", "Malo", "Regular", "Bueno", "Excelente"];
+      label.textContent = `${score} / 5 (${labels[score - 1]})`;
+      label.classList.remove("text-slate-400");
+      label.classList.add("text-amber-600");
+    }
+
+    async function submitSurvey(e, token, questionDocs) {
+      e.preventDefault();
+      const submitBtn = document.getElementById("btn-submit-survey");
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <span>Guardando respuestas...</span>
+      `;
+
+      try {
+        const form = document.getElementById("survey-form");
+        const formData = new FormData(form);
+        const respuestasData = {};
+
+        questionDocs.forEach(doc => {
+          const qId = doc.id;
+          const val = formData.get(`question_${qId}`);
+          respuestasData[qId] = {
+            pregunta: doc.data().texto,
+            tipo: doc.data().tipo,
+            respuesta: doc.data().tipo === "estrellas" ? parseInt(val, 10) : val
+          };
+        });
+
+        await db.collection("respuestas").add({
+          token: token,
+          respuestas: respuestasData,
+          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await db.collection("tokens").doc(token).update({
+          estado: "Contestado",
+          respondidoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showSurveyStatus(
+          "success",
+          "¡Muchas gracias por tus respuestas!",
+          "Tu información ha sido registrada exitosamente en el sistema."
+        );
+      } catch (err) {
+        console.error("Error al registrar respuestas:", err);
+        alert("Ocurrió un error al enviar la encuesta: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Enviar respuestas</span>`;
+      }
+    }
+
+    function showSurveyStatus(type, title, description) {
+      hideAllViews();
+      const statusView = document.getElementById("view-survey-status");
+      const iconContainer = document.getElementById("status-icon");
+      const titleElem = document.getElementById("status-title");
+      const descElem = document.getElementById("status-description");
+
+      titleElem.textContent = title;
+      descElem.textContent = description;
+
+      if (type === "success") {
+        iconContainer.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4 bg-emerald-50 text-emerald-600";
+        iconContainer.innerHTML = `
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        `;
+      } else if (type === "answered") {
+        iconContainer.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4 bg-amber-50 text-amber-600";
+        iconContainer.innerHTML = `
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        `;
+      } else {
+        iconContainer.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4 bg-rose-50 text-rose-600";
+        iconContainer.innerHTML = `
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        `;
+      }
+
+      statusView.classList.remove("hidden");
+    }
+
+    // ----------------------------------------------------
+    // 4. ACCESO ADMIN & PIN
+    // ----------------------------------------------------
+    function handleAdminAccess() {
+      hideAllViews();
+      const isAuthenticated = sessionStorage.getItem("admin_auth") === "true";
+
+      if (isAuthenticated) {
+        showAdminDashboard();
+      } else {
+        document.getElementById("view-admin-pin").classList.remove("hidden");
+        document.getElementById("admin-pin-input").value = "";
+        document.getElementById("pin-error-msg").classList.add("hidden");
+        document.getElementById("admin-pin-input").focus();
+      }
+    }
+
+    document.getElementById("admin-pin-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const enteredPin = document.getElementById("admin-pin-input").value.trim();
+      const errorMsg = document.getElementById("pin-error-msg");
+
+      if (enteredPin === MASTER_PIN) {
+        sessionStorage.setItem("admin_auth", "true");
+        errorMsg.classList.add("hidden");
+        showAdminDashboard();
+      } else {
+        errorMsg.classList.remove("hidden");
+        document.getElementById("admin-pin-input").value = "";
+        document.getElementById("admin-pin-input").focus();
+      }
+    });
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("admin_auth");
+      window.location.hash = "#admin";
+      handleAdminAccess();
+    }
+
+    function showAdminDashboard() {
+      hideAllViews();
+      document.getElementById("view-admin-dashboard").classList.remove("hidden");
+      switchAdminTab("campaigns");
+      listenToTokens();
+      listenToQuestions();
+    }
+
+    function switchAdminTab(tabName) {
+      ["campaigns", "questions", "metrics"].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add("hidden");
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.classList.remove("bg-white", "text-indigo-600", "shadow-sm");
+        btn.classList.add("text-slate-600");
+      });
+
+      document.getElementById(`tab-content-${tabName}`).classList.remove("hidden");
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      activeBtn.classList.add("bg-white", "text-indigo-600", "shadow-sm");
+      activeBtn.classList.remove("text-slate-600");
+
+      if (tabName === "metrics") {
+        renderMetricsDashboard();
+      }
+    }
+
+    // ----------------------------------------------------
+    // 5. GESTOR DE CAMPAÑAS (CSV & TOKENS)
+    // ----------------------------------------------------
+    document.getElementById("csv-file-input").addEventListener("change", handleCSVUpload);
+
+    function generateUniqueToken() {
+      return "tkn_" + Math.random().toString(36).substr(2, 6) + Date.now().toString(36).substr(4, 4);
+    }
+
+    async function handleCSVUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const progressDiv = document.getElementById("csv-progress");
+      const progressText = document.getElementById("csv-progress-text");
+      progressDiv.classList.remove("hidden");
+      progressText.textContent = "Analizando archivo CSV...";
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (results) => {
+          try {
+            if (!results.data || results.data.length === 0) {
+              alert("El archivo CSV está vacío.");
+              progressDiv.classList.add("hidden");
+              return;
+            }
+
+            const firstRow = results.data[0];
+            const contactKey = Object.keys(firstRow).find(
+              k => k.trim().toLowerCase() === "contacto"
+            ) || Object.keys(firstRow)[0];
+
+            progressText.textContent = `Registrando ${results.data.length} tokens en Firestore...`;
+
+            const rows = results.data;
+            let batch = db.batch();
+            let countInBatch = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+              const rawContact = rows[i][contactKey];
+              if (!rawContact) continue;
+
+              const contact = String(rawContact).trim();
+              const token = generateUniqueToken();
+              const tokenRef = db.collection("tokens").doc(token);
+
+              batch.set(tokenRef, {
+                token: token,
+                contacto: contact,
+                estado: "Pendiente",
+                creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+              });
+
+              countInBatch++;
+              if (countInBatch >= 400) {
+                await batch.commit();
+                batch = db.batch();
+                countInBatch = 0;
+              }
+            }
+
+            if (countInBatch > 0) {
+              await batch.commit();
+            }
+
+            progressDiv.classList.add("hidden");
+            e.target.value = "";
+            alert("Campañas y tokens generados exitosamente.");
+          } catch (err) {
+            console.error("Error al procesar CSV:", err);
+            alert("Error al guardar tokens del CSV: " + err.message);
+            progressDiv.classList.add("hidden");
+          }
+        },
+        error: (err) => {
+          console.error("Error de PapaParse:", err);
+          alert("Error al leer el archivo CSV.");
+          progressDiv.classList.add("hidden");
+        }
+      });
+    }
+
+    function listenToTokens() {
+      const tbody = document.getElementById("tokens-table-body");
+      db.collection("tokens").orderBy("creadoEn", "desc").onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">No hay tokens generados. Sube un CSV para iniciar.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = "";
+        const baseUrl = window.location.origin + window.location.pathname;
+
+        snapshot.forEach(doc => {
+          const t = doc.data();
+          const surveyLink = `${baseUrl}?token=${t.token}`;
+          const isPending = t.estado === "Pendiente";
+
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50/60 transition";
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-medium text-slate-800">${escapeHtml(t.contacto || "Sin dato")}</td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-2 max-w-xs sm:max-w-md">
+                <span class="truncate font-mono text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded select-all">${surveyLink}</span>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                isPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+              }">
+                ${t.estado}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-right">
+              <button onclick="copyToClipboard('${surveyLink}', this)" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition">
+                Copiar
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, err => {
+        console.error("Error al escuchar tokens:", err);
+      });
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = "¡Copiado!";
+        btn.classList.add("text-emerald-600", "border-emerald-200");
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove("text-emerald-600", "border-emerald-200");
+        }, 1800);
+      });
+    }
+
+    // ----------------------------------------------------
+    // 6. MÓDULO DE PREGUNTAS
+    // ----------------------------------------------------
+    document.getElementById("new-q-type").addEventListener("change", (e) => {
+      const optionsContainer = document.getElementById("new-q-options-container");
+      if (e.target.value === "opcion_multiple") {
+        optionsContainer.classList.remove("hidden");
+        document.getElementById("new-q-options").required = true;
+      } else {
+        optionsContainer.classList.add("hidden");
+        document.getElementById("new-q-options").required = false;
+      }
+    });
+
+    document.getElementById("create-question-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = document.getElementById("new-q-text").value.trim();
+      const type = document.getElementById("new-q-type").value;
+      const rawOptions = document.getElementById("new-q-options").value;
+
+      let opciones = [];
+      if (type === "opcion_multiple") {
+        opciones = rawOptions.split(",").map(o => o.trim()).filter(o => o.length > 0);
+        if (opciones.length < 2) {
+          alert("Ingresa al menos 2 opciones separadas por coma.");
+          return;
+        }
+      }
+
+      try {
+        await db.collection("preguntas").add({
+          texto: text,
+          tipo: type,
+          opciones: opciones,
+          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        document.getElementById("create-question-form").reset();
+        document.getElementById("new-q-options-container").classList.add("hidden");
+      } catch (err) {
+        console.error("Error al crear pregunta:", err);
+        alert("Error al guardar la pregunta: " + err.message);
+      }
+    });
+
+    function listenToQuestions() {
+      const container = document.getElementById("questions-list-container");
+      db.collection("preguntas").orderBy("creadoEn", "asc").onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          container.innerHTML = `<p class="text-sm text-slate-400">No hay preguntas creadas aún. Utiliza el formulario de la izquierda.</p>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        snapshot.forEach((doc, idx) => {
+          const q = doc.data();
+          const qId = doc.id;
+
+          const item = document.createElement("div");
+          item.className = "flex items-start justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl";
+          
+          let typeLabel = "1 a 5 Estrellas";
+          if (q.tipo === "opcion_multiple") typeLabel = "Opción Múltiple";
+          if (q.tipo === "abierta") typeLabel = "Respuesta Abierta";
+
+          item.innerHTML = `
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-bold text-slate-400">#${idx + 1}</span>
+                <span class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">${typeLabel}</span>
+              </div>
+              <p class="font-semibold text-slate-900 text-sm">${escapeHtml(q.texto)}</p>
+              ${q.tipo === "opcion_multiple" ? `<p class="text-xs text-slate-500 mt-1">Opciones: ${q.opciones.join(", ")}</p>` : ""}
+            </div>
+            <button onclick="deleteQuestion('${qId}')" title="Eliminar" class="p-1.5 text-slate-400 hover:text-rose-600 transition rounded-lg hover:bg-rose-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          `;
+          container.appendChild(item);
+        });
+      }, err => {
+        console.error("Error al escuchar preguntas:", err);
+      });
+    }
+
+    async function deleteQuestion(qId) {
+      if (confirm("¿Seguro que deseas eliminar esta pregunta?")) {
+        try {
+          await db.collection("preguntas").doc(qId).delete();
+        } catch (err) {
+          alert("Error al eliminar pregunta: " + err.message);
+        }
+      }
+    }
+
+    // ----------------------------------------------------
+    // 7. DASHBOARD, GRÁFICAS (CHART.JS) Y EXPORTACIÓN CSV
+    // ----------------------------------------------------
+    async function renderMetricsDashboard() {
+      activeChartInstances.forEach(c => c.destroy());
+      activeChartInstances = [];
+
+      const chartsWrapper = document.getElementById("charts-wrapper");
+      chartsWrapper.innerHTML = `
+        <div class="col-span-full py-12 flex justify-center items-center gap-2 text-slate-400 text-sm">
+          <div class="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <span>Generando métricas y visualizaciones...</span>
+        </div>
+      `;
+
+      try {
+        const [tokensSnap, responsesSnap, questionsSnap] = await Promise.all([
+          db.collection("tokens").get(),
+          db.collection("respuestas").get(),
+          db.collection("preguntas").orderBy("creadoEn", "asc").get()
+        ]);
+
+        const totalTokens = tokensSnap.size;
+        const totalAnswered = tokensSnap.docs.filter(d => d.data().estado === "Contestado").length;
+        const rate = totalTokens > 0 ? ((totalAnswered / totalTokens) * 100).toFixed(1) : 0;
+
+        document.getElementById("stat-total-tokens").textContent = totalTokens;
+        document.getElementById("stat-answered").textContent = totalAnswered;
+        document.getElementById("stat-rate").textContent = `${rate}%`;
+
+        chartsWrapper.innerHTML = "";
+
+        if (responsesSnap.empty) {
+          chartsWrapper.innerHTML = `
+            <div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+              Aún no hay respuestas registradas para generar gráficas.
+            </div>
+          `;
+          return;
+        }
+
+        const responsesList = responsesSnap.docs.map(d => d.data());
+
+        questionsSnap.docs.forEach((qDoc) => {
+          const qId = qDoc.id;
+          const qData = qDoc.data();
+
+          if (qData.tipo === "estrellas") {
+            const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let sum = 0;
+            let totalVotes = 0;
+
+            responsesList.forEach(r => {
+              if (r.respuestas && r.respuestas[qId]) {
+                const val = r.respuestas[qId].respuesta;
+                if (counts[val] !== undefined) {
+                  counts[val]++;
+                  sum += val;
+                  totalVotes++;
+                }
+              }
+            });
+
+            const avg = totalVotes > 0 ? (sum / totalVotes).toFixed(2) : 0;
+
+            const card = document.createElement("div");
+            card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+            card.innerHTML = `
+              <div>
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold text-slate-900 text-sm">${escapeHtml(qData.texto)}</h4>
+                  <span class="bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full font-bold">Promedio: ${avg} ★</span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Distribución de calificaciones (1 a 5)</p>
+              </div>
+              <div class="h-60 relative">
+                <canvas id="chart-${qId}"></canvas>
+              </div>
+            `;
+            chartsWrapper.appendChild(card);
+
+            const ctx = document.getElementById(`chart-${qId}`).getContext("2d");
+            const chart = new Chart(ctx, {
+              type: "bar",
+              data: {
+                labels: ["1 ★", "2 ★", "3 ★", "4 ★", "5 ★"],
+                datasets: [{
+                  label: "Votos",
+                  data: [counts[1], counts[2], counts[3], counts[4], counts[5]],
+                  backgroundColor: "#f59e0b",
+                  borderRadius: 6
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: { beginAtZero: true, ticks: { precision: 0 } }
+                },
+                plugins: { legend: { display: false } }
+              }
+            });
+            activeChartInstances.push(chart);
+
+          } else if (qData.tipo === "opcion_multiple") {
+            const counts = {};
+            (qData.opciones || []).forEach(opt => counts[opt.trim()] = 0);
+
+            responsesList.forEach(r => {
+              if (r.respuestas && r.respuestas[qId]) {
+                const val = (r.respuestas[qId].respuesta || "").trim();
+                if (counts[val] !== undefined) {
+                  counts[val]++;
+                } else if (val) {
+                  counts[val] = (counts[val] || 0) + 1;
+                }
+              }
+            });
+
+            const card = document.createElement("div");
+            card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+            card.innerHTML = `
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm mb-1">${escapeHtml(qData.texto)}</h4>
+                <p class="text-xs text-slate-400 mb-4">Resultados de selección múltiple</p>
+              </div>
+              <div class="h-60 relative">
+                <canvas id="chart-${qId}"></canvas>
+              </div>
+            `;
+            chartsWrapper.appendChild(card);
+
+            const ctx = document.getElementById(`chart-${qId}`).getContext("2d");
+            const chart = new Chart(ctx, {
+              type: "doughnut",
+              data: {
+                labels: Object.keys(counts),
+                datasets: [{
+                  data: Object.values(counts),
+                  backgroundColor: [
+                    "#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"
+                  ]
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } }
+                }
+              }
+            });
+            activeChartInstances.push(chart);
+          }
+        });
+      } catch (err) {
+        console.error("Error al generar dashboard:", err);
+        chartsWrapper.innerHTML = `
+          <div class="col-span-full bg-rose-50 text-rose-700 p-4 rounded-xl text-xs font-semibold">
+            Error al cargar las métricas: ${err.message}
+          </div>
+        `;
+      }
+    }
+
+    async function exportResponsesToCSV() {
+      try {
+        const [responsesSnap, tokensSnap, questionsSnap] = await Promise.all([
+          db.collection("respuestas").get(),
+          db.collection("tokens").get(),
+          db.collection("preguntas").orderBy("creadoEn", "asc").get()
+        ]);
+
+        if (responsesSnap.empty) {
+          alert("No hay respuestas disponibles para exportar.");
+          return;
+        }
+
+        const tokensMap = {};
+        tokensSnap.forEach(d => {
+          tokensMap[d.id] = d.data().contacto || "N/A";
+        });
+
+        const questions = questionsSnap.docs.map(d => ({ id: d.id, texto: d.data().texto }));
+
+        const exportData = responsesSnap.docs.map(doc => {
+          const r = doc.data();
+          const row = {
+            "ID_Respuesta": doc.id,
+            "Token": r.token || "",
+            "Contacto": tokensMap[r.token] || "N/A",
+            "Fecha": r.creadoEn && r.creadoEn.toDate ? r.creadoEn.toDate().toLocaleString() : ""
+          };
+
+          questions.forEach(q => {
+            const answerObj = r.respuestas ? r.respuestas[q.id] : null;
+            row[q.texto] = answerObj ? answerObj.respuesta : "";
+          });
+
+          return row;
+        });
+
+        const csvString = Papa.unparse(exportData);
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvString], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `respuestas_fespa_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Error al exportar CSV:", err);
+        alert("Ocurrió un error al generar el archivo CSV: " + err.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
