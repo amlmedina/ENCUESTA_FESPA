@@ -37,7 +37,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /preguntas/{preguntaId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if true;
     }
     match /tokens/{tokenId} {
       allow read: if true;
