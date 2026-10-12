@@ -165,6 +165,12 @@
               <button type="button" onclick="exportTokensToCSV()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs sm:text-sm px-3 py-2.5 rounded-xl transition border border-slate-200">
                 <span>CSV</span>
               </button>
+              <button type="button" onclick="deleteAllTokens()" title="Eliminar todos los tokens generados" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium text-xs sm:text-sm px-3.5 py-2.5 rounded-xl transition border border-rose-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Limpiar Todos</span>
+              </button>
               <label class="cursor-pointer inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow shadow-indigo-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
@@ -868,6 +874,11 @@
                 <button onclick="copyToClipboard('${surveyLink}', this)" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition">
                   Copiar
                 </button>
+                <button onclick="deleteSingleToken('${t.token}')" title="Eliminar este token" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition border border-slate-200 hover:border-rose-200">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
               </div>
             </td>
           `;
@@ -1331,6 +1342,74 @@
       } catch (err) {
         console.error("Error al exportar tokens a CSV:", err);
         alert("Ocurrió un error al generar el archivo CSV: " + err.message);
+      }
+    }
+
+    async function deleteAllTokens() {
+      if (!confirm("¿Estás seguro de que deseas eliminar TODOS los tokens generados? Esta acción borrará la lista de contactos cargada.")) {
+        return;
+      }
+
+      const deleteResponsesAlso = confirm("¿También deseas eliminar las respuestas registradas asociadas a estos tokens?");
+
+      try {
+        const tokensSnap = await db.collection("tokens").get();
+        if (tokensSnap.empty) {
+          alert("No hay tokens para eliminar.");
+          return;
+        }
+
+        let batch = db.batch();
+        let count = 0;
+        const commits = [];
+
+        tokensSnap.docs.forEach(doc => {
+          batch.delete(doc.ref);
+          count++;
+          if (count >= 400) {
+            commits.push(batch.commit());
+            batch = db.batch();
+            count = 0;
+          }
+        });
+
+        if (deleteResponsesAlso) {
+          const respSnap = await db.collection("respuestas").get();
+          respSnap.docs.forEach(doc => {
+            batch.delete(doc.ref);
+            count++;
+            if (count >= 400) {
+              commits.push(batch.commit());
+              batch = db.batch();
+              count = 0;
+            }
+          });
+        }
+
+        if (count > 0) {
+          commits.push(batch.commit());
+        }
+
+        await Promise.all(commits);
+        alert(`Se han eliminado ${tokensSnap.size} tokens exitosamente.`);
+        if (typeof renderMetricsDashboard === "function") {
+          renderMetricsDashboard();
+        }
+      } catch (err) {
+        console.error("Error al eliminar tokens:", err);
+        alert("Ocurrió un error al eliminar los tokens: " + err.message);
+      }
+    }
+
+    async function deleteSingleToken(tokenId) {
+      if (!confirm(`¿Deseas eliminar permanentemente este token?`)) {
+        return;
+      }
+      try {
+        await db.collection("tokens").doc(tokenId).delete();
+      } catch (err) {
+        console.error("Error al eliminar token:", err);
+        alert("Error al eliminar token: " + err.message);
       }
     }
 
