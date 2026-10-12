@@ -19,6 +19,9 @@
   <!-- PapaParse CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   
+  <!-- SheetJS (xlsx) CDN para exportación nativa a Excel (.xlsx) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
   <!-- Firebase App & Firestore Compat CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -128,9 +131,13 @@
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <nav class="flex space-x-1 bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
-            <button onclick="switchAdminTab('campaigns')" id="tab-btn-campaigns" class="px-4 py-2 rounded-lg bg-white text-indigo-600 shadow-sm transition">Campañas CSV</button>
-            <button onclick="switchAdminTab('questions')" id="tab-btn-questions" class="px-4 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Preguntas</button>
-            <button onclick="switchAdminTab('metrics')" id="tab-btn-metrics" class="px-4 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Dashboard & Gráficas</button>
+            <button onclick="switchAdminTab('campaigns')" id="tab-btn-campaigns" class="px-3.5 py-2 rounded-lg bg-white text-indigo-600 shadow-sm transition">Campañas CSV</button>
+            <button onclick="switchAdminTab('questions')" id="tab-btn-questions" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Preguntas</button>
+            <button onclick="switchAdminTab('responses')" id="tab-btn-responses" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition flex items-center gap-1.5">
+              <span>Respuestas</span>
+              <span id="badge-responses-count" class="hidden px-1.5 py-0.5 text-[10px] bg-indigo-100 text-indigo-700 rounded-full font-bold">0</span>
+            </button>
+            <button onclick="switchAdminTab('metrics')" id="tab-btn-metrics" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-indigo-600 transition">Dashboard & Gráficas</button>
           </nav>
           <button onclick="logoutAdmin()" title="Cerrar sesión" class="p-2 text-slate-400 hover:text-rose-600 transition rounded-lg hover:bg-rose-50">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,13 +155,24 @@
               <h2 class="text-lg font-bold text-slate-900">Generar Tokens mediante CSV</h2>
               <p class="text-xs text-slate-500">Sube un archivo .csv con una columna nombrada <code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600 font-mono font-bold">Contacto</code> (email o teléfono).</p>
             </div>
-            <label class="cursor-pointer inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition shadow shadow-indigo-100">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-              </svg>
-              <span>Subir Archivo CSV</span>
-              <input type="file" id="csv-file-input" accept=".csv" class="hidden">
-            </label>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="exportTokensToExcel()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow shadow-emerald-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Descargar Tokens (Excel)</span>
+              </button>
+              <button type="button" onclick="exportTokensToCSV()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs sm:text-sm px-3 py-2.5 rounded-xl transition border border-slate-200">
+                <span>CSV</span>
+              </button>
+              <label class="cursor-pointer inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow shadow-indigo-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                <span>Subir Archivo CSV</span>
+                <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+              </label>
+            </div>
           </div>
 
           <div id="csv-progress" class="hidden mb-4 p-3 bg-indigo-50 text-indigo-700 rounded-xl text-xs font-semibold flex items-center gap-2">
@@ -238,7 +256,64 @@
         </div>
       </section>
 
-      <!-- TAB 3: DASHBOARD Y EXPORTACIÓN -->
+      <!-- TAB 3: GESTOR DE RESPUESTAS (VER Y EDITAR) -->
+      <section id="tab-content-responses" class="hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Respuestas Registradas</h2>
+              <p class="text-xs text-slate-500">Visualiza el detalle de cada encuesta contestada, edita respuestas o descarga la base completa en Excel.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="exportResponsesToExcel()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow shadow-emerald-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Descargar Respuestas (Excel)</span>
+              </button>
+              <button type="button" onclick="exportResponsesToCSV()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs sm:text-sm px-3.5 py-2.5 rounded-xl transition border border-slate-200">
+                <span>Descargar CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Barra de Búsqueda y Conteo -->
+          <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-md">
+              <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input type="text" id="responses-search-input" oninput="filterResponsesTable()" placeholder="Buscar por contacto, token o respuesta..." class="w-full text-xs sm:text-sm pl-9 pr-3.5 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <span id="responses-count-label" class="text-xs text-slate-500 font-medium"></span>
+          </div>
+
+          <!-- Tabla de Respuestas -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-400 font-semibold text-xs uppercase tracking-wider bg-slate-50/50">
+                  <th class="py-3 px-4">Contacto</th>
+                  <th class="py-3 px-4">Token</th>
+                  <th class="py-3 px-4">Fecha</th>
+                  <th class="py-3 px-4">Satisfacción</th>
+                  <th class="py-3 px-4">Negocios (Q6)</th>
+                  <th class="py-3 px-4">Expositores (Q7)</th>
+                  <th class="py-3 px-4">Valor Económico (Q8)</th>
+                  <th class="py-3 px-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="responses-table-body" class="divide-y divide-slate-100 font-normal">
+                <tr>
+                  <td colspan="8" class="py-8 text-center text-slate-400">Cargando respuestas...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: DASHBOARD Y EXPORTACIÓN -->
       <section id="tab-content-metrics" class="hidden space-y-6">
         <!-- Barra de Métricas Rápidas y Exportar -->
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -635,23 +710,32 @@
       switchAdminTab("campaigns");
       listenToTokens();
       listenToQuestions();
+      listenToResponses();
     }
 
     function switchAdminTab(tabName) {
-      ["campaigns", "questions", "metrics"].forEach(t => {
-        document.getElementById(`tab-content-${t}`).classList.add("hidden");
+      ["campaigns", "questions", "responses", "metrics"].forEach(t => {
+        const contentEl = document.getElementById(`tab-content-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
-        btn.classList.remove("bg-white", "text-indigo-600", "shadow-sm");
-        btn.classList.add("text-slate-600");
+        if (contentEl) contentEl.classList.add("hidden");
+        if (btn) {
+          btn.classList.remove("bg-white", "text-indigo-600", "shadow-sm");
+          btn.classList.add("text-slate-600");
+        }
       });
 
-      document.getElementById(`tab-content-${tabName}`).classList.remove("hidden");
+      const activeContent = document.getElementById(`tab-content-${tabName}`);
       const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-      activeBtn.classList.add("bg-white", "text-indigo-600", "shadow-sm");
-      activeBtn.classList.remove("text-slate-600");
+      if (activeContent) activeContent.classList.remove("hidden");
+      if (activeBtn) {
+        activeBtn.classList.add("bg-white", "text-indigo-600", "shadow-sm");
+        activeBtn.classList.remove("text-slate-600");
+      }
 
       if (tabName === "metrics") {
         renderMetricsDashboard();
+      } else if (tabName === "responses") {
+        renderResponsesTable();
       }
     }
 
@@ -772,9 +856,19 @@
               </span>
             </td>
             <td class="py-3 px-4 text-right">
-              <button onclick="copyToClipboard('${surveyLink}', this)" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition">
-                Copiar
-              </button>
+              <div class="flex items-center justify-end gap-1.5">
+                ${!isPending ? `
+                  <button onclick="editResponseByToken('${t.token}')" title="Editar Respuesta" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1.5 rounded-lg border border-indigo-200 transition flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <span>Editar</span>
+                  </button>
+                ` : ''}
+                <button onclick="copyToClipboard('${surveyLink}', this)" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 transition">
+                  Copiar
+                </button>
+              </div>
             </td>
           `;
           tbody.appendChild(tr);
@@ -1154,6 +1248,510 @@
       }
     }
 
+
+    // ----------------------------------------------------
+    // EXPORTACIÓN DE TOKENS (EXCEL .xlsx Y CSV)
+    // ----------------------------------------------------
+    async function exportTokensToExcel() {
+      try {
+        const tokensSnap = await db.collection("tokens").orderBy("creadoEn", "desc").get();
+        if (tokensSnap.empty) {
+          alert("No hay tokens generados para exportar.");
+          return;
+        }
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const exportData = tokensSnap.docs.map(doc => {
+          const t = doc.data();
+          return {
+            "Contacto": t.contacto || "Sin dato",
+            "Token": t.token || doc.id,
+            "Enlace_Encuesta": `${baseUrl}?token=${t.token || doc.id}`,
+            "Estado": t.estado || "Pendiente",
+            "Fecha_Creacion": t.creadoEn && t.creadoEn.toDate ? t.creadoEn.toDate().toLocaleString() : "",
+            "Fecha_Respuesta": t.respondidoEn && t.respondidoEn.toDate ? t.respondidoEn.toDate().toLocaleString() : ""
+          };
+        });
+
+        const fileName = `tokens_fespa_${new Date().toISOString().slice(0, 10)}`;
+
+        if (window.XLSX) {
+          const ws = XLSX.utils.json_to_sheet(exportData);
+          ws['!cols'] = [
+            { wch: 25 },
+            { wch: 20 },
+            { wch: 60 },
+            { wch: 14 },
+            { wch: 24 },
+            { wch: 24 }
+          ];
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Tokens");
+          XLSX.writeFile(wb, `${fileName}.xlsx`);
+        } else {
+          exportTokensToCSV();
+        }
+      } catch (err) {
+        console.error("Error al exportar tokens a Excel:", err);
+        alert("Ocurrió un error al generar el archivo Excel de tokens: " + err.message);
+      }
+    }
+
+    async function exportTokensToCSV() {
+      try {
+        const tokensSnap = await db.collection("tokens").orderBy("creadoEn", "desc").get();
+        if (tokensSnap.empty) {
+          alert("No hay tokens generados para exportar.");
+          return;
+        }
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const exportData = tokensSnap.docs.map(doc => {
+          const t = doc.data();
+          return {
+            "Contacto": t.contacto || "Sin dato",
+            "Token": t.token || doc.id,
+            "Enlace_Encuesta": `${baseUrl}?token=${t.token || doc.id}`,
+            "Estado": t.estado || "Pendiente",
+            "Fecha_Creacion": t.creadoEn && t.creadoEn.toDate ? t.creadoEn.toDate().toLocaleString() : "",
+            "Fecha_Respuesta": t.respondidoEn && t.respondidoEn.toDate ? t.respondidoEn.toDate().toLocaleString() : ""
+          };
+        });
+
+        const csvString = Papa.unparse(exportData);
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvString], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `tokens_fespa_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Error al exportar tokens a CSV:", err);
+        alert("Ocurrió un error al generar el archivo CSV: " + err.message);
+      }
+    }
+
+    // ----------------------------------------------------
+    // GESTIÓN DE RESPUESTAS (LISTEN, TABLA, EDICIÓN Y ELIMINACIÓN)
+    // ----------------------------------------------------
+    let cachedResponses = [];
+    let cachedTokensMap = {};
+    let cachedQuestions = [];
+
+    function listenToResponses() {
+      db.collection("respuestas").orderBy("creadoEn", "desc").onSnapshot(snapshot => {
+        cachedResponses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const badge = document.getElementById("badge-responses-count");
+        if (badge) {
+          badge.textContent = cachedResponses.length;
+          if (cachedResponses.length > 0) {
+            badge.classList.remove("hidden");
+          } else {
+            badge.classList.add("hidden");
+          }
+        }
+
+        // Si la pestaña de respuestas está visible, refrescar la tabla
+        const responsesTab = document.getElementById("tab-content-responses");
+        if (responsesTab && !responsesTab.classList.contains("hidden")) {
+          renderResponsesTable();
+        }
+      }, err => {
+        console.error("Error al escuchar respuestas:", err);
+      });
+    }
+
+    async function loadResponsesDependencies() {
+      const [tokensSnap, questionsSnap] = await Promise.all([
+        db.collection("tokens").get(),
+        db.collection("preguntas").orderBy("creadoEn", "asc").get()
+      ]);
+
+      cachedTokensMap = {};
+      tokensSnap.forEach(d => {
+        const data = d.data();
+        cachedTokensMap[d.id] = data.contacto || "Sin dato";
+        if (data.token) cachedTokensMap[data.token] = data.contacto || "Sin dato";
+      });
+
+      cachedQuestions = questionsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+
+    async function renderResponsesTable() {
+      const tbody = document.getElementById("responses-table-body");
+      if (!tbody) return;
+
+      if (!cachedQuestions || cachedQuestions.length === 0 || Object.keys(cachedTokensMap).length === 0) {
+        await loadResponsesDependencies();
+      }
+
+      filterResponsesTable();
+    }
+
+    function filterResponsesTable() {
+      const tbody = document.getElementById("responses-table-body");
+      if (!tbody) return;
+
+      const query = (document.getElementById("responses-search-input")?.value || "").toLowerCase().trim();
+      const countLabel = document.getElementById("responses-count-label");
+
+      if (cachedResponses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Aún no se han registrado respuestas de participantes.</td></tr>`;
+        if (countLabel) countLabel.textContent = "0 respuestas";
+        return;
+      }
+
+      const filtered = cachedResponses.filter(r => {
+        if (!query) return true;
+        const contacto = (cachedTokensMap[r.token] || "").toLowerCase();
+        const token = (r.token || "").toLowerCase();
+        let matchesAnswers = false;
+        if (r.respuestas) {
+          Object.values(r.respuestas).forEach(ans => {
+            if (String(ans.respuesta || "").toLowerCase().includes(query)) {
+              matchesAnswers = true;
+            }
+          });
+        }
+        return contacto.includes(query) || token.includes(query) || matchesAnswers;
+      });
+
+      if (countLabel) {
+        countLabel.textContent = `${filtered.length} de ${cachedResponses.length} respuestas`;
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">No se encontraron respuestas con el término "${escapeHtml(query)}".</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = "";
+
+      filtered.forEach(r => {
+        const contacto = cachedTokensMap[r.token] || "Sin dato";
+        const fechaStr = r.creadoEn && r.creadoEn.toDate ? r.creadoEn.toDate().toLocaleString() : "Reciente";
+
+        // Métricas rápidas de la respuesta
+        let starSum = 0;
+        let starCount = 0;
+        let q6Answer = "-";
+        let q7Answer = "-";
+        let q8Answer = "-";
+
+        if (r.respuestas) {
+          Object.entries(r.respuestas).forEach(([qKey, aObj]) => {
+            const val = aObj ? aObj.respuesta : null;
+            if (aObj && aObj.tipo === "estrellas" && typeof val === "number") {
+              starSum += val;
+              starCount++;
+            }
+            // Buscar Q6, Q7, Q8 por texto o tipo
+            const pregText = (aObj && aObj.pregunta ? aObj.pregunta : "").toLowerCase();
+            if (pregText.includes("cerraste algún negocio") || pregText.includes("cerraste negocio")) {
+              q6Answer = val || "-";
+            } else if (pregText.includes("con qué expositores") || pregText.includes("expositores cerraste")) {
+              q7Answer = val || "-";
+            } else if (pregText.includes("valor económico")) {
+              q8Answer = val || "-";
+            }
+          });
+        }
+
+        const avgStars = starCount > 0 ? (starSum / starCount).toFixed(1) : "-";
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/60 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-slate-800">${escapeHtml(contacto)}</td>
+          <td class="py-3 px-4">
+            <span class="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">${escapeHtml(r.token || "-")}</span>
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">${escapeHtml(fechaStr)}</td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center gap-1 text-xs font-bold ${avgStars !== '-' ? 'bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full' : 'text-slate-400'}">
+              <span>★</span><span>${avgStars}</span>
+            </span>
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-700 max-w-xs truncate" title="${escapeHtml(q6Answer)}">
+            ${escapeHtml(q6Answer)}
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-700 max-w-xs truncate" title="${escapeHtml(q7Answer)}">
+            ${escapeHtml(q7Answer)}
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-700 whitespace-nowrap" title="${escapeHtml(q8Answer)}">
+            ${escapeHtml(q8Answer)}
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="openEditModal('${r.id}')" title="Editar Respuesta" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition border border-indigo-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button onclick="deleteResponse('${r.id}', '${r.token}')" title="Eliminar Respuesta" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function editResponseByToken(token) {
+      if (!cachedResponses || cachedResponses.length === 0) {
+        const snap = await db.collection("respuestas").where("token", "==", token).get();
+        if (snap.empty) {
+          alert("No se encontró el registro de respuesta para este token.");
+          return;
+        }
+        openEditModal(snap.docs[0].id);
+        return;
+      }
+      const found = cachedResponses.find(r => r.token === token);
+      if (found) {
+        openEditModal(found.id);
+      } else {
+        const snap = await db.collection("respuestas").where("token", "==", token).get();
+        if (snap.empty) {
+          alert("No se encontró el registro de respuesta para este token.");
+          return;
+        }
+        openEditModal(snap.docs[0].id);
+      }
+    }
+
+    async function openEditModal(responseId) {
+      if (!cachedQuestions || cachedQuestions.length === 0 || Object.keys(cachedTokensMap).length === 0) {
+        await loadResponsesDependencies();
+      }
+
+      let respDoc = cachedResponses.find(r => r.id === responseId);
+      if (!respDoc) {
+        const snap = await db.collection("respuestas").doc(responseId).get();
+        if (!snap.exists) {
+          alert("La respuesta no existe.");
+          return;
+        }
+        respDoc = { id: snap.id, ...snap.data() };
+      }
+
+      document.getElementById("edit-response-id").value = respDoc.id;
+      document.getElementById("edit-response-token").value = respDoc.token || "";
+
+      const contacto = cachedTokensMap[respDoc.token] || "Sin dato";
+      const fechaStr = respDoc.creadoEn && respDoc.creadoEn.toDate ? respDoc.creadoEn.toDate().toLocaleString() : "";
+      document.getElementById("modal-edit-subtitle").textContent = `Contacto: ${contacto} | Token: ${respDoc.token || "N/A"} | Fecha: ${fechaStr}`;
+
+      const container = document.getElementById("modal-edit-questions-container");
+      container.innerHTML = "";
+
+      const scaleLabels = ["Muy insatisfecho", "Insatisfecho", "Neutral", "Satisfecho", "Muy satisfecho"];
+
+      cachedQuestions.forEach((q, idx) => {
+        // Encontrar valor actual por ID de pregunta o por coincidencia de texto
+        let currentVal = null;
+        if (respDoc.respuestas) {
+          if (respDoc.respuestas[q.id] && respDoc.respuestas[q.id].respuesta !== undefined) {
+            currentVal = respDoc.respuestas[q.id].respuesta;
+          } else {
+            // Fallback por coincidencia de texto
+            const matchedKey = Object.keys(respDoc.respuestas).find(k => respDoc.respuestas[k].pregunta === q.texto);
+            if (matchedKey) {
+              currentVal = respDoc.respuestas[matchedKey].respuesta;
+            }
+          }
+        }
+
+        const fieldWrapper = document.createElement("div");
+        fieldWrapper.className = "p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2";
+
+        const labelHtml = `
+          <label class="block text-xs font-bold text-slate-900 leading-snug">
+            <span class="text-indigo-600 font-extrabold mr-1">#${idx + 1}</span> ${escapeHtml(q.texto)}
+          </label>
+          ${q.descripcion ? `<p class="text-[11px] text-slate-500">${escapeHtml(q.descripcion)}</p>` : ""}
+        `;
+
+        let inputHtml = "";
+
+        if (q.tipo === "estrellas") {
+          inputHtml = `
+            <select name="edit_q_${q.id}" class="w-full text-xs font-medium p-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              ${[1, 2, 3, 4, 5].map(num => `
+                <option value="${num}" ${currentVal == num ? "selected" : ""}>
+                  ${num} ★ - ${scaleLabels[num - 1]}
+                </option>
+              `).join('')}
+            </select>
+          `;
+        } else if (q.tipo === "opcion_multiple") {
+          const opciones = Array.isArray(q.opciones) ? q.opciones : [];
+          inputHtml = `
+            <select name="edit_q_${q.id}" class="w-full text-xs font-medium p-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              ${opciones.map(opt => `
+                <option value="${escapeHtml(opt)}" ${currentVal === opt ? "selected" : ""}>
+                  ${escapeHtml(opt)}
+                </option>
+              `).join('')}
+            </select>
+          `;
+        } else {
+          inputHtml = `
+            <textarea name="edit_q_${q.id}" rows="3" placeholder="Escribe la respuesta..." class="w-full text-xs font-medium p-2.5 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">${escapeHtml(currentVal || "")}</textarea>
+          `;
+        }
+
+        fieldWrapper.innerHTML = labelHtml + inputHtml;
+        container.appendChild(fieldWrapper);
+      });
+
+      document.getElementById("modal-edit-response").classList.remove("hidden");
+    }
+
+    function closeEditModal() {
+      document.getElementById("modal-edit-response").classList.add("hidden");
+    }
+
+    async function saveEditedResponse() {
+      const respId = document.getElementById("edit-response-id").value;
+      const saveBtn = document.getElementById("btn-save-edit-response");
+      if (!respId) return;
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = `
+        <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <span>Guardando...</span>
+      `;
+
+      try {
+        const form = document.getElementById("form-edit-response");
+        const updatedRespuestas = {};
+
+        cachedQuestions.forEach(q => {
+          const input = form.elements[`edit_q_${q.id}`];
+          if (input) {
+            const val = q.tipo === "estrellas" ? parseInt(input.value, 10) : input.value.trim();
+            updatedRespuestas[q.id] = {
+              pregunta: q.texto,
+              tipo: q.tipo,
+              respuesta: val
+            };
+          }
+        });
+
+        await db.collection("respuestas").doc(respId).update({
+          respuestas: updatedRespuestas,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("¡Respuesta actualizada exitosamente!");
+        closeEditModal();
+        renderResponsesTable();
+      } catch (err) {
+        console.error("Error al actualizar respuesta:", err);
+        alert("Error al guardar cambios: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `<span>Guardar Cambios</span>`;
+      }
+    }
+
+    async function deleteResponse(responseId, token) {
+      if (!confirm("¿Deseas eliminar permanentemente esta respuesta? El token volverá a estado 'Pendiente' para que pueda contestarse nuevamente.")) {
+        return;
+      }
+
+      try {
+        await db.collection("respuestas").doc(responseId).delete();
+        if (token) {
+          await db.collection("tokens").doc(token).update({
+            estado: "Pendiente",
+            respondidoEn: firebase.firestore.FieldValue.delete()
+          });
+        }
+        alert("Respuesta eliminada correctamente.");
+      } catch (err) {
+        console.error("Error al eliminar respuesta:", err);
+        alert("Error al eliminar la respuesta: " + err.message);
+      }
+    }
+
+    async function deleteCurrentEditingResponse() {
+      const respId = document.getElementById("edit-response-id").value;
+      const token = document.getElementById("edit-response-token").value;
+      if (!respId) return;
+      closeEditModal();
+      await deleteResponse(respId, token);
+    }
+
+    // ----------------------------------------------------
+    // EXPORTACIÓN DE RESPUESTAS A EXCEL (.xlsx)
+    // ----------------------------------------------------
+    async function exportResponsesToExcel() {
+      try {
+        const [responsesSnap, tokensSnap, questionsSnap] = await Promise.all([
+          db.collection("respuestas").orderBy("creadoEn", "desc").get(),
+          db.collection("tokens").get(),
+          db.collection("preguntas").orderBy("creadoEn", "asc").get()
+        ]);
+
+        if (responsesSnap.empty) {
+          alert("No hay respuestas disponibles para exportar.");
+          return;
+        }
+
+        const tokensMap = {};
+        tokensSnap.forEach(d => {
+          tokensMap[d.id] = d.data().contacto || "N/A";
+          if (d.data().token) tokensMap[d.data().token] = d.data().contacto || "N/A";
+        });
+
+        const questions = questionsSnap.docs.map(d => ({ id: d.id, texto: d.data().texto }));
+
+        const exportData = responsesSnap.docs.map(doc => {
+          const r = doc.data();
+          const row = {
+            "ID_Respuesta": doc.id,
+            "Contacto": tokensMap[r.token] || "N/A",
+            "Token": r.token || "",
+            "Fecha": r.creadoEn && r.creadoEn.toDate ? r.creadoEn.toDate().toLocaleString() : ""
+          };
+
+          questions.forEach(q => {
+            let answerObj = r.respuestas ? r.respuestas[q.id] : null;
+            if (!answerObj && r.respuestas) {
+              const matchedKey = Object.keys(r.respuestas).find(k => r.respuestas[k].pregunta === q.texto);
+              if (matchedKey) answerObj = r.respuestas[matchedKey];
+            }
+            row[q.texto] = answerObj ? answerObj.respuesta : "";
+          });
+
+          return row;
+        });
+
+        const fileName = `respuestas_fespa_${new Date().toISOString().slice(0, 10)}`;
+
+        if (window.XLSX) {
+          const ws = XLSX.utils.json_to_sheet(exportData);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Respuestas");
+          XLSX.writeFile(wb, `${fileName}.xlsx`);
+        } else {
+          exportResponsesToCSV();
+        }
+      } catch (err) {
+        console.error("Error al exportar respuestas a Excel:", err);
+        alert("Ocurrió un error al generar el archivo Excel: " + err.message);
+      }
+    }
+
     async function exportResponsesToCSV() {
       try {
         const [responsesSnap, tokensSnap, questionsSnap] = await Promise.all([
@@ -1217,5 +1815,49 @@
         .replace(/'/g, "&#039;");
     }
   </script>
+  <!-- ==================== MODAL DE EDICIÓN DE RESPUESTA ==================== -->
+  <div id="modal-edit-response" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Editar Respuesta de Encuesta</h3>
+          <p id="modal-edit-subtitle" class="text-xs text-slate-500 mt-0.5">Contacto: - | Token: -</p>
+        </div>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/60 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Formulario dinámico) -->
+      <form id="form-edit-response" class="p-6 overflow-y-auto space-y-5 flex-1">
+        <input type="hidden" id="edit-response-id">
+        <input type="hidden" id="edit-response-token">
+        <div id="modal-edit-questions-container" class="space-y-4">
+          <!-- Inyección dinámica de campos de preguntas -->
+        </div>
+      </form>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button type="button" onclick="deleteCurrentEditingResponse()" class="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span>Eliminar Respuesta</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition">
+            Cancelar
+          </button>
+          <button type="button" onclick="saveEditedResponse()" id="btn-save-edit-response" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow shadow-indigo-100 flex items-center gap-2">
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
