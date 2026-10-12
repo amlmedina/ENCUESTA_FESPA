@@ -36,20 +36,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /preguntas/{preguntaId} {
-      allow read: if true;
-      allow write: if true;
+      allow read, write: if true;
     }
     match /tokens/{tokenId} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if resource.data.estado == 'Pendiente' 
-                    && request.resource.data.estado == 'Contestado'
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'respondidoEn']);
+      allow read, write: if true;
     }
     match /respuestas/{respuestaId} {
-      allow create: if request.resource.data.token != null
-                    && get(/databases/$(database)/documents/tokens/$(request.resource.data.token)).data.estado == 'Pendiente';
-      allow read: if true;
+      allow read, write: if true;
     }
   }
 }
