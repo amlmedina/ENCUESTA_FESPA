@@ -8,7 +8,7 @@ Aplicación Single Page Application (SPA) para gestión de encuestas personaliza
 - **Módulo de Preguntas:** Soporta preguntas de 1 a 5 estrellas, selección múltiple y texto abierto.
 - **Gestor de Campañas (CSV):** Subida masiva con PapaParse que genera enlaces directos para compartir.
 - **Dashboard & Métricas:** Gráficas automáticas con Chart.js y exportación completa a `.csv`.
-- **Panel Administrativo:** Protegido por PIN maestro (`10188852`).
+- **Panel Administrativo:** Protegido por PIN dinámico almacenado en Firebase Firestore (`configuracion/acceso`) y configurable directamente desde el panel.
 
 ---
 
@@ -44,6 +44,9 @@ service cloud.firestore {
     match /respuestas/{respuestaId} {
       allow read, write: if true;
     }
+    match /configuracion/{docId} {
+      allow read, write: if true;
+    }
   }
 }
 ```
@@ -59,4 +62,4 @@ service cloud.firestore {
    `https://amlmedina.github.io/ENCUESTA_FESPA/`
 
 - **Panel de Administración:** `https://amlmedina.github.io/ENCUESTA_FESPA/#admin`
-- **PIN Maestro:** `10188852`
+- **PIN Inicial en Firestore:** `10188852` (puede ser cambiado desde el botón "Cambiar PIN" dentro del panel)
