@@ -270,32 +270,38 @@
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
             <div>
-              <h2 class="text-lg font-black text-slate-900 font-display uppercase tracking-tight">Generar Tokens mediante CSV</h2>
-              <p class="text-xs text-slate-500">Sube un archivo .csv con una columna nombrada <code class="bg-slate-100 px-1 py-0.5 rounded text-fespa-navy font-mono font-bold">Contacto</code> (email o teléfono).</p>
+              <h2 class="text-lg font-black text-slate-900 font-display uppercase tracking-tight">Gestión de Tokens & Campañas</h2>
+              <p class="text-xs text-slate-500">Crea tokens individuales o sube un archivo CSV con una columna <code class="bg-slate-100 px-1 py-0.5 rounded text-fespa-navy font-mono font-bold">Contacto</code>.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" onclick="exportTokensToExcel()" class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg transition shadow-sm">
+              <button type="button" onclick="openCreateTokenModal()" class="inline-flex items-center gap-1.5 bg-fespa-navy hover:bg-fespa-navyDark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg transition shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                 </svg>
-                <span>Descargar Tokens (Excel)</span>
-              </button>
-              <button type="button" onclick="exportTokensToCSV()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm px-3 py-2.5 rounded-lg transition border border-slate-200">
-                <span>CSV</span>
-              </button>
-              <button type="button" onclick="deleteAllTokens()" title="Eliminar todos los tokens generados" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs sm:text-sm px-3.5 py-2.5 rounded-lg transition border border-rose-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                <span>Limpiar Todos</span>
+                <span>+ Crear Token Individual</span>
               </button>
               <label class="cursor-pointer inline-flex items-center gap-2 bg-fespa-red hover:bg-fespa-redDark text-white font-black uppercase tracking-wider text-xs sm:text-sm px-4 py-2.5 rounded-lg transition shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                 </svg>
-                <span>Subir Archivo CSV</span>
+                <span>Subir CSV</span>
                 <input type="file" id="csv-file-input" accept=".csv" class="hidden">
               </label>
+              <button type="button" onclick="exportTokensToExcel()" class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-lg transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Excel</span>
+              </button>
+              <button type="button" onclick="exportTokensToCSV()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm px-3 py-2.5 rounded-lg transition border border-slate-200">
+                <span>CSV</span>
+              </button>
+              <button type="button" onclick="deleteAllTokens()" title="Eliminar todos los tokens generados" class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs sm:text-sm px-3 py-2.5 rounded-lg transition border border-rose-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Limpiar</span>
+              </button>
             </div>
           </div>
 
@@ -1555,13 +1561,121 @@
     }
 
     // ----------------------------------------------------
-    // 5. GESTOR DE CAMPAÑAS (CSV & TOKENS)
+    // 5. GESTOR DE TOKENS (INDIVIDUALES & CSV)
     // ----------------------------------------------------
     document.getElementById("csv-file-input").addEventListener("change", handleCSVUpload);
 
     function generateUniqueToken() {
       return "tkn_" + Math.random().toString(36).substr(2, 6) + Date.now().toString(36).substr(4, 4);
     }
+
+    function openCreateTokenModal() {
+      const modal = document.getElementById("modal-create-token");
+      modal.classList.remove("hidden");
+      document.getElementById("create-token-form").reset();
+      document.getElementById("create-token-error").classList.add("hidden");
+      document.getElementById("create-token-success").classList.add("hidden");
+      regenerateIndividualTokenId();
+      document.getElementById("individual-token-contact").focus();
+    }
+
+    function closeCreateTokenModal() {
+      document.getElementById("modal-create-token").classList.add("hidden");
+    }
+
+    function regenerateIndividualTokenId() {
+      const tokenInput = document.getElementById("individual-token-id");
+      if (tokenInput) {
+        tokenInput.value = generateUniqueToken();
+        updateIndividualTokenUrlPreview();
+      }
+    }
+
+    function updateIndividualTokenUrlPreview() {
+      const tokenInput = document.getElementById("individual-token-id");
+      const preview = document.getElementById("individual-token-url-preview");
+      if (!tokenInput || !preview) return;
+      const baseUrl = window.location.origin + window.location.pathname;
+      const t = tokenInput.value.trim() || "...";
+      preview.textContent = `${baseUrl}?token=${t}`;
+    }
+
+    document.getElementById("individual-token-id")?.addEventListener("input", updateIndividualTokenUrlPreview);
+
+    document.getElementById("create-token-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const contactInput = document.getElementById("individual-token-contact");
+      const tokenInput = document.getElementById("individual-token-id");
+      const errBox = document.getElementById("create-token-error");
+      const successBox = document.getElementById("create-token-success");
+      const submitBtn = document.getElementById("btn-save-individual-token");
+
+      errBox.classList.add("hidden");
+      successBox.classList.add("hidden");
+
+      const contact = contactInput.value.trim();
+      let token = tokenInput.value.trim().replace(/\s+/g, "_");
+
+      if (!contact) {
+        errBox.textContent = "Por favor ingresa un contacto o identificador.";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
+      if (!token) {
+        token = generateUniqueToken();
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <span>Guardando en Firebase...</span>
+      `;
+
+      try {
+        const existingDoc = await db.collection("tokens").doc(token).get();
+        if (existingDoc.exists) {
+          errBox.textContent = `El token '${token}' ya existe. Por favor genera o escribe un código diferente.`;
+          errBox.classList.remove("hidden");
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+          return;
+        }
+
+        await db.collection("tokens").doc(token).set({
+          token: token,
+          contacto: contact,
+          estado: "Pendiente",
+          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const surveyLink = `${baseUrl}?token=${token}`;
+
+        successBox.innerHTML = `
+          <div class="space-y-1.5">
+            <p class="font-bold">¡Token creado exitosamente!</p>
+            <p class="text-[11px] text-emerald-800">Enlace generado:</p>
+            <div class="flex items-center gap-1.5 mt-1">
+              <input type="text" readonly value="${surveyLink}" class="bg-white text-slate-800 px-2 py-1 rounded text-[11px] font-mono flex-1 border border-emerald-300 select-all">
+              <button type="button" onclick="navigator.clipboard.writeText('${surveyLink}').then(() => alert('¡Enlace copiado al portapapeles!'))" class="px-2.5 py-1 bg-emerald-700 text-white rounded text-[11px] font-bold">Copiar</button>
+            </div>
+          </div>
+        `;
+        successBox.classList.remove("hidden");
+
+        setTimeout(() => {
+          closeCreateTokenModal();
+        }, 2200);
+      } catch (err) {
+        console.error("Error al crear token individual:", err);
+        errBox.textContent = "Error al guardar en Firebase: " + (err.message || "Error desconocido");
+        errBox.classList.remove("hidden");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+      }
+    });
 
     async function handleCSVUpload(e) {
       const file = e.target.files[0];
@@ -2799,6 +2913,74 @@
           </button>
           <button type="submit" id="btn-save-change-pin" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
             <span>Guardar Nuevo PIN</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL PARA CREAR TOKEN INDIVIDUAL ==================== -->
+  <div id="modal-create-token" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-fespa-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900 font-display uppercase tracking-tight">Crear Token Individual</h3>
+            <p class="text-[11px] text-slate-500">Genera un enlace único personalizado para un nuevo participante</p>
+          </div>
+        </div>
+        <button onclick="closeCreateTokenModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="create-token-form" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">
+            Contacto / Identificador <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="individual-token-contact" placeholder="Ej: cliente@empresa.com o +52 55 1234 5678" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Email, teléfono o nombre del asistente que contestará.</p>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Código de Token Único</label>
+            <button type="button" onclick="regenerateIndividualTokenId()" class="text-[11px] font-bold text-fespa-navy hover:underline">
+              Regenerar código aleatorio
+            </button>
+          </div>
+          <input type="text" id="individual-token-id" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none font-mono tracking-wide text-fespa-navy font-bold bg-slate-50">
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Puedes personalizar el código si lo deseas (alfanumérico sin espacios).</p>
+        </div>
+
+        <!-- Vista previa del enlace generado -->
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Vista previa del enlace de encuesta:</span>
+          <div class="flex items-center gap-2">
+            <span id="individual-token-url-preview" class="text-xs font-mono text-slate-700 break-all select-all font-semibold bg-white p-2 rounded border border-slate-200 w-full"></span>
+          </div>
+        </div>
+
+        <div id="create-token-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+        <div id="create-token-success" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+
+        <!-- Modal Footer -->
+        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeCreateTokenModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-save-individual-token" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
+            <span>Guardar y Crear Token</span>
           </button>
         </div>
       </form>
