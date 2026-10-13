@@ -13,14 +13,14 @@
         extend: {
           colors: {
             fespa: {
-              red: '#E30613',
-              redDark: '#C00510',
-              navy: '#0B2545',
-              navyDark: '#07182C',
-              blue: '#0066B2',
-              blueLight: '#0072CE',
-              orange: '#E87722',
-              orangeHover: '#D06717',
+              red: 'var(--color-primary, #E30613)',
+              redDark: 'var(--color-primary-dark, #C00510)',
+              navy: 'var(--color-navy, #0B2545)',
+              navyDark: 'var(--color-navy-dark, #07182C)',
+              blue: 'var(--color-secondary, #0066B2)',
+              blueLight: 'var(--color-secondary-light, #0072CE)',
+              orange: 'var(--color-accent, #E87722)',
+              orangeHover: 'var(--color-accent-hover, #D06717)',
             }
           },
           fontFamily: {
@@ -51,6 +51,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
+    :root {
+      --color-primary: #E30613;
+      --color-primary-dark: #C00510;
+      --color-navy: #0B2545;
+      --color-navy-dark: #07182C;
+      --color-secondary: #0066B2;
+      --color-secondary-light: #0072CE;
+      --color-accent: #E87722;
+      --color-accent-hover: #D06717;
+    }
     body { font-family: 'Inter', sans-serif; }
     h1, h2, h3, h4, .font-display { font-family: 'Montserrat', sans-serif; }
     .fespa-chamfer {
@@ -67,12 +77,14 @@
     <div class="h-1 bg-fespa-red w-full"></div>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <a href="./" class="flex items-center gap-3 group">
-        <!-- Contorno geométrico FESPA con corte achaflanado -->
-        <div class="w-10 h-10 border-2 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy flex-shrink-0 group-hover:border-fespa-red transition">
-          <div class="flex items-center font-black text-xs tracking-tight text-white">
-            <span>F</span><span class="text-fespa-red text-[7px] -mt-1 font-bold">▲</span><span>ESPA</span>
+        <!-- Contenedor dinámico del Logotipo del Header -->
+        <div id="header-logo-container" class="flex-shrink-0 flex items-center">
+          <div class="w-10 h-10 border-2 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy flex-shrink-0 group-hover:border-fespa-red transition">
+            <div class="flex items-center font-black text-xs tracking-tight text-white">
+              <span>F</span><span class="text-fespa-red text-[7px] -mt-1 font-bold">▲</span><span>ESPA</span>
+            </div>
+            <span class="text-[7px] font-extrabold tracking-widest text-white/90 uppercase border-t border-white/30 w-full text-center">MEX</span>
           </div>
-          <span class="text-[7px] font-extrabold tracking-widest text-white/90 uppercase border-t border-white/30 w-full text-center">MEX</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
@@ -118,16 +130,18 @@
         <div class="relative bg-gradient-to-r from-fespa-navyDark via-fespa-navy to-fespa-blue p-6 sm:p-8 text-white">
           <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div class="flex items-center gap-4 sm:gap-5">
-              <!-- Emblema FESPA geométrico -->
-              <div class="relative flex-shrink-0 w-20 sm:w-24 h-20 sm:h-24 border-4 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy/60 backdrop-blur-sm shadow-md">
-                <div class="relative flex items-center font-black text-xl sm:text-2xl tracking-tight">
-                  <span class="text-white">F</span>
-                  <span class="text-fespa-red inline-block font-extrabold text-[10px] -mt-2 -ml-0.5">▲</span>
-                  <span class="text-white">ESPA</span>
-                  <span class="text-[8px] text-white ml-0.5 self-start">®</span>
-                </div>
-                <div class="text-[10px] font-black tracking-widest text-white uppercase mt-0.5 border-t border-white/40 pt-0.5 w-full text-center">
-                  MEXICO
+              <!-- Contenedor dinámico del Logotipo del Banner -->
+              <div id="survey-logo-container" class="flex-shrink-0 flex items-center">
+                <div class="relative flex-shrink-0 w-20 sm:w-24 h-20 sm:h-24 border-4 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy/60 backdrop-blur-sm shadow-md">
+                  <div class="relative flex items-center font-black text-xl sm:text-2xl tracking-tight">
+                    <span class="text-white">F</span>
+                    <span class="text-fespa-red inline-block font-extrabold text-[10px] -mt-2 -ml-0.5">▲</span>
+                    <span class="text-white">ESPA</span>
+                    <span class="text-[8px] text-white ml-0.5 self-start">®</span>
+                  </div>
+                  <div class="text-[10px] font-black tracking-widest text-white uppercase mt-0.5 border-t border-white/40 pt-0.5 w-full text-center">
+                    MEXICO
+                  </div>
                 </div>
               </div>
 
@@ -183,12 +197,14 @@
       <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden text-center">
         <div class="h-1.5 bg-fespa-red w-full"></div>
         <div class="p-8">
-          <!-- Logo contorno -->
-          <div class="w-14 h-14 border-2 border-fespa-navy flex flex-col items-center justify-center fespa-chamfer bg-slate-50 mx-auto mb-4 shadow-sm">
-            <div class="flex items-center font-black text-xs tracking-tight text-fespa-navy">
-              <span>F</span><span class="text-fespa-red text-[8px] -mt-1 font-bold">▲</span><span>ESPA</span>
+          <!-- Contenedor dinámico del Logotipo de Login Admin -->
+          <div id="admin-logo-container" class="mx-auto mb-4 flex items-center justify-center">
+            <div class="w-14 h-14 border-2 border-fespa-navy flex flex-col items-center justify-center fespa-chamfer bg-slate-50 shadow-sm">
+              <div class="flex items-center font-black text-xs tracking-tight text-fespa-navy">
+                <span>F</span><span class="text-fespa-red text-[8px] -mt-1 font-bold">▲</span><span>ESPA</span>
+              </div>
+              <span class="text-[7px] font-extrabold tracking-widest text-slate-600 uppercase border-t border-slate-300 w-full text-center">MEX</span>
             </div>
-            <span class="text-[7px] font-extrabold tracking-widest text-slate-600 uppercase border-t border-slate-300 w-full text-center">MEX</span>
           </div>
 
           <h2 class="text-xl font-black text-slate-900 mb-1 font-display uppercase tracking-tight">Acceso Administrativo</h2>
@@ -227,6 +243,10 @@
               <span id="badge-responses-count" class="hidden px-1.5 py-0.5 text-[10px] bg-slate-100 text-slate-800 rounded-full font-bold">0</span>
             </button>
             <button onclick="switchAdminTab('metrics')" id="tab-btn-metrics" class="px-3.5 py-2 rounded-md text-slate-700 hover:text-slate-900 transition">Dashboard & Gráficas</button>
+            <button onclick="switchAdminTab('branding')" id="tab-btn-branding" class="px-3.5 py-2 rounded-md text-slate-700 hover:text-slate-900 transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+              <span>Identidad & Colores</span>
+            </button>
           </nav>
           <button onclick="openChangePinModal()" title="Cambiar PIN de Acceso" class="px-3 py-2 text-slate-700 hover:text-fespa-navy transition rounded-lg hover:bg-slate-200 border border-slate-200 flex items-center gap-1.5 text-xs font-bold bg-white shadow-sm">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -457,6 +477,220 @@
           <!-- Inyección dinámica de canvas de gráficas -->
         </div>
       </section>
+
+      <!-- TAB 5: IDENTIDAD VISUAL Y PALETA DE COLORES -->
+      <section id="tab-content-branding" class="hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 bg-fespa-red rounded-full"></span>
+                <h2 class="text-lg font-black text-slate-900 font-display uppercase tracking-tight">Identidad Visual & Paleta de Colores</h2>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Sube el logotipo oficial y define la paleta corporativa para la encuesta y el panel.</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="resetBrandingDefaults()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition border border-slate-200">
+                Restablecer FESPA
+              </button>
+              <button type="button" onclick="saveBrandingToFirestore()" id="btn-save-branding" class="px-5 py-2.5 bg-fespa-red hover:bg-fespa-redDark text-white font-black text-xs uppercase tracking-wider rounded-lg transition shadow-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Guardar Cambios</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- COLUMNA 1: LOGOTIPO OFICIAL -->
+            <div class="space-y-5">
+              <div>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide font-display">
+                  1. Logotipo Oficial
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Sube una imagen oficial en PNG (con transparencia), WebP, SVG o JPG.</p>
+              </div>
+
+              <!-- Vista previa del logotipo actual -->
+              <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Vista previa del logo activo:</div>
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Fondo Claro -->
+                  <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col items-center justify-center min-h-[110px] text-center shadow-xs">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Fondo Claro</span>
+                    <div id="branding-preview-light" class="flex items-center justify-center max-h-16 w-full">
+                      <!-- Imagen o placeholder inyectado dinámicamente -->
+                    </div>
+                  </div>
+                  <!-- Fondo Oscuro -->
+                  <div class="bg-fespa-navyDark p-4 rounded-lg border border-slate-800 flex flex-col items-center justify-center min-h-[110px] text-center shadow-xs">
+                    <span class="text-[9px] font-bold text-sky-200/60 uppercase tracking-widest mb-1.5">Fondo Cabecera</span>
+                    <div id="branding-preview-dark" class="flex items-center justify-center max-h-16 w-full">
+                      <!-- Imagen o placeholder inyectado dinámicamente -->
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <span id="branding-logo-info" class="text-[11px] text-slate-500 italic">Usando logotipo predeterminado</span>
+                  <button type="button" onclick="removeCustomLogo()" id="btn-remove-logo" class="hidden text-xs font-bold text-rose-600 hover:text-rose-800 transition">
+                    Eliminar logo personalizado
+                  </button>
+                </div>
+              </div>
+
+              <!-- Opciones de Carga de Logo -->
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Subir archivo de imagen</label>
+                  <label class="border-2 border-dashed border-slate-300 hover:border-fespa-navy rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition bg-white hover:bg-slate-50 group">
+                    <svg class="w-8 h-8 text-slate-400 group-hover:text-fespa-navy transition mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs font-bold text-slate-700 group-hover:text-fespa-navy">Seleccionar imagen de tu equipo</span>
+                    <span class="text-[10px] text-slate-400 mt-0.5">PNG transparente recomendado • Se optimiza automáticamente</span>
+                    <input type="file" id="branding-file-input" accept="image/*" class="hidden" onchange="handleLogoFileUpload(event)">
+                  </label>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">O ingresar URL de imagen externa</label>
+                  <div class="flex gap-2">
+                    <input type="url" id="branding-url-input" placeholder="https://ejemplo.com/logo.png" class="flex-1 text-xs px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
+                    <button type="button" onclick="applyLogoUrl()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg transition">Aplicar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUMNA 2: PALETA DE COLORES -->
+            <div class="space-y-5">
+              <div>
+                <h3 class="text-sm font-black text-slate-900 uppercase tracking-wide font-display">
+                  2. Paleta de Colores Corporativa
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Ajusta los colores para botones, encabezados, estrellas y destaques.</p>
+              </div>
+
+              <!-- Paletas Prediseñadas Rápidas -->
+              <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">Paletas Prediseñadas:</span>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button type="button" onclick="applyPresetPalette('#E30613', '#0B2545', '#0066B2', '#E87722')" class="p-2 bg-white rounded-lg border border-slate-200 hover:border-slate-400 text-left transition shadow-2xs group">
+                    <div class="flex h-3 rounded overflow-hidden mb-1.5">
+                      <div class="w-1/4 bg-[#E30613]"></div>
+                      <div class="w-1/4 bg-[#0B2545]"></div>
+                      <div class="w-1/4 bg-[#0066B2]"></div>
+                      <div class="w-1/4 bg-[#E87722]"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-700 block truncate">FESPA Oficial</span>
+                  </button>
+
+                  <button type="button" onclick="applyPresetPalette('#2563EB', '#0F172A', '#0284C7', '#F59E0B')" class="p-2 bg-white rounded-lg border border-slate-200 hover:border-slate-400 text-left transition shadow-2xs group">
+                    <div class="flex h-3 rounded overflow-hidden mb-1.5">
+                      <div class="w-1/4 bg-[#2563EB]"></div>
+                      <div class="w-1/4 bg-[#0F172A]"></div>
+                      <div class="w-1/4 bg-[#0284C7]"></div>
+                      <div class="w-1/4 bg-[#F59E0B]"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-700 block truncate">Azul Moderno</span>
+                  </button>
+
+                  <button type="button" onclick="applyPresetPalette('#7C3AED', '#18181B', '#4338CA', '#EC4899')" class="p-2 bg-white rounded-lg border border-slate-200 hover:border-slate-400 text-left transition shadow-2xs group">
+                    <div class="flex h-3 rounded overflow-hidden mb-1.5">
+                      <div class="w-1/4 bg-[#7C3AED]"></div>
+                      <div class="w-1/4 bg-[#18181B]"></div>
+                      <div class="w-1/4 bg-[#4338CA]"></div>
+                      <div class="w-1/4 bg-[#EC4899]"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-700 block truncate">Premium Violeta</span>
+                  </button>
+
+                  <button type="button" onclick="applyPresetPalette('#059669', '#064E3B', '#0D9488', '#84CC16')" class="p-2 bg-white rounded-lg border border-slate-200 hover:border-slate-400 text-left transition shadow-2xs group">
+                    <div class="flex h-3 rounded overflow-hidden mb-1.5">
+                      <div class="w-1/4 bg-[#059669]"></div>
+                      <div class="w-1/4 bg-[#064E3B]"></div>
+                      <div class="w-1/4 bg-[#0D9488]"></div>
+                      <div class="w-1/4 bg-[#84CC16]"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-700 block truncate">Esmeralda</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selectores Individuales de Color -->
+              <div class="space-y-3">
+                <!-- Color 1: Primario / Acción -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-800">Color Primario (Acción)</label>
+                    <span class="text-[11px] text-slate-500">Botones de envío, estrellas activas y acentos principales.</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="picker-color-primary" oninput="syncColorInput('primary', this.value)" class="w-9 h-9 p-0.5 rounded cursor-pointer border border-slate-300">
+                    <input type="text" id="hex-color-primary" maxlength="7" onchange="syncColorInput('primary', this.value)" class="w-20 text-xs font-mono font-bold text-center px-2 py-1.5 border border-slate-300 rounded uppercase">
+                  </div>
+                </div>
+
+                <!-- Color 2: Cabecera / Fondos Oscuros -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-800">Color de Cabecera (Navy)</label>
+                    <span class="text-[11px] text-slate-500">Barra superior fija y fondo base del banner.</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="picker-color-navy" oninput="syncColorInput('navy', this.value)" class="w-9 h-9 p-0.5 rounded cursor-pointer border border-slate-300">
+                    <input type="text" id="hex-color-navy" maxlength="7" onchange="syncColorInput('navy', this.value)" class="w-20 text-xs font-mono font-bold text-center px-2 py-1.5 border border-slate-300 rounded uppercase">
+                  </div>
+                </div>
+
+                <!-- Color 3: Secundario / Gradiente -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-800">Color Secundario (Azul)</label>
+                    <span class="text-[11px] text-slate-500">Gradiente del banner de encuesta y detalles.</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="picker-color-secondary" oninput="syncColorInput('secondary', this.value)" class="w-9 h-9 p-0.5 rounded cursor-pointer border border-slate-300">
+                    <input type="text" id="hex-color-secondary" maxlength="7" onchange="syncColorInput('secondary', this.value)" class="w-20 text-xs font-mono font-bold text-center px-2 py-1.5 border border-slate-300 rounded uppercase">
+                  </div>
+                </div>
+
+                <!-- Color 4: Acento / Badges -->
+                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-800">Color de Acento (Naranja)</label>
+                    <span class="text-[11px] text-slate-500">Insignias de evento y etiquetas de duración.</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="picker-color-accent" oninput="syncColorInput('accent', this.value)" class="w-9 h-9 p-0.5 rounded cursor-pointer border border-slate-300">
+                    <input type="text" id="hex-color-accent" maxlength="7" onchange="syncColorInput('accent', this.value)" class="w-20 text-xs font-mono font-bold text-center px-2 py-1.5 border border-slate-300 rounded uppercase">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mockup en vivo de componentes con los colores actuales -->
+              <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2.5">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Vista previa de componentes:</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <button type="button" class="px-4 py-2 text-white font-bold text-xs rounded-lg shadow-sm" style="background-color: var(--color-primary)">
+                    Botón de Acción
+                  </button>
+                  <span class="px-2.5 py-1 text-white text-[11px] font-bold rounded" style="background-color: var(--color-accent)">
+                    Badge de Evento
+                  </span>
+                  <div class="flex text-lg" style="color: var(--color-primary)">
+                    ★ ★ ★ ★ ★
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
     </div>
 
   </main>
@@ -523,6 +757,308 @@
     }
 
     // ----------------------------------------------------
+    // GESTIÓN DE IDENTIDAD VISUAL & BRANDING EN FIRESTORE
+    // ----------------------------------------------------
+    const DEFAULT_BRANDING = {
+      logoUrl: "",
+      colorPrimary: "#E30613",
+      colorNavy: "#0B2545",
+      colorSecondary: "#0066B2",
+      colorAccent: "#E87722"
+    };
+
+    let currentBranding = { ...DEFAULT_BRANDING };
+
+    function adjustBrightness(hex, percent) {
+      if (!hex || hex[0] !== "#" || hex.length !== 7) return hex;
+      const num = parseInt(hex.slice(1), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function renderLogoInContainer(containerId, logoUrl, context) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+
+      if (logoUrl) {
+        if (context === "header") {
+          el.innerHTML = `<img src="${logoUrl}" alt="Logo Oficial" class="max-h-10 w-auto max-w-[140px] object-contain rounded bg-white/10 p-1">`;
+        } else if (context === "survey") {
+          el.innerHTML = `<img src="${logoUrl}" alt="Logo Oficial" class="max-h-20 sm:max-h-24 w-auto max-w-[220px] object-contain rounded-lg bg-white/15 backdrop-blur-xs p-2 shadow-sm">`;
+        } else if (context === "admin") {
+          el.innerHTML = `<img src="${logoUrl}" alt="Logo Oficial" class="max-h-16 w-auto max-w-[180px] object-contain mx-auto rounded-lg p-1">`;
+        }
+      } else {
+        // Logo predeterminado FESPA
+        if (context === "header") {
+          el.innerHTML = `
+            <div class="w-10 h-10 border-2 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy flex-shrink-0 group-hover:border-fespa-red transition">
+              <div class="flex items-center font-black text-xs tracking-tight text-white">
+                <span>F</span><span class="text-fespa-red text-[7px] -mt-1 font-bold">▲</span><span>ESPA</span>
+              </div>
+              <span class="text-[7px] font-extrabold tracking-widest text-white/90 uppercase border-t border-white/30 w-full text-center">MEX</span>
+            </div>
+          `;
+        } else if (context === "survey") {
+          el.innerHTML = `
+            <div class="relative flex-shrink-0 w-20 sm:w-24 h-20 sm:h-24 border-4 border-white flex flex-col items-center justify-center fespa-chamfer bg-fespa-navy/60 backdrop-blur-sm shadow-md">
+              <div class="relative flex items-center font-black text-xl sm:text-2xl tracking-tight">
+                <span class="text-white">F</span>
+                <span class="text-fespa-red inline-block font-extrabold text-[10px] -mt-2 -ml-0.5">▲</span>
+                <span class="text-white">ESPA</span>
+                <span class="text-[8px] text-white ml-0.5 self-start">®</span>
+              </div>
+              <div class="text-[10px] font-black tracking-widest text-white uppercase mt-0.5 border-t border-white/40 pt-0.5 w-full text-center">
+                MEXICO
+              </div>
+            </div>
+          `;
+        } else if (context === "admin") {
+          el.innerHTML = `
+            <div class="w-14 h-14 border-2 border-fespa-navy flex flex-col items-center justify-center fespa-chamfer bg-slate-50 shadow-sm">
+              <div class="flex items-center font-black text-xs tracking-tight text-fespa-navy">
+                <span>F</span><span class="text-fespa-red text-[8px] -mt-1 font-bold">▲</span><span>ESPA</span>
+              </div>
+              <span class="text-[7px] font-extrabold tracking-widest text-slate-600 uppercase border-t border-slate-300 w-full text-center">MEX</span>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function applyBranding(branding) {
+      const root = document.documentElement;
+      const b = branding || currentBranding;
+
+      root.style.setProperty('--color-primary', b.colorPrimary);
+      root.style.setProperty('--color-primary-dark', adjustBrightness(b.colorPrimary, -25));
+      root.style.setProperty('--color-navy', b.colorNavy);
+      root.style.setProperty('--color-navy-dark', adjustBrightness(b.colorNavy, -15));
+      root.style.setProperty('--color-secondary', b.colorSecondary);
+      root.style.setProperty('--color-secondary-light', adjustBrightness(b.colorSecondary, 25));
+      root.style.setProperty('--color-accent', b.colorAccent);
+      root.style.setProperty('--color-accent-hover', adjustBrightness(b.colorAccent, -20));
+
+      renderLogoInContainer("header-logo-container", b.logoUrl, "header");
+      renderLogoInContainer("survey-logo-container", b.logoUrl, "survey");
+      renderLogoInContainer("admin-logo-container", b.logoUrl, "admin");
+    }
+
+    async function loadBranding() {
+      try {
+        const doc = await db.collection("configuracion").doc("branding").get();
+        if (doc.exists) {
+          const data = doc.data();
+          currentBranding = {
+            logoUrl: data.logoUrl || "",
+            colorPrimary: data.colorPrimary || DEFAULT_BRANDING.colorPrimary,
+            colorNavy: data.colorNavy || DEFAULT_BRANDING.colorNavy,
+            colorSecondary: data.colorSecondary || DEFAULT_BRANDING.colorSecondary,
+            colorAccent: data.colorAccent || DEFAULT_BRANDING.colorAccent
+          };
+        } else {
+          currentBranding = { ...DEFAULT_BRANDING };
+        }
+      } catch (err) {
+        console.warn("No se pudo leer branding de Firebase:", err);
+        currentBranding = { ...DEFAULT_BRANDING };
+      }
+      applyBranding(currentBranding);
+      updateBrandingPreviewUI();
+    }
+
+    function updateBrandingPreviewUI() {
+      const cp = document.getElementById("picker-color-primary");
+      const hp = document.getElementById("hex-color-primary");
+      const cn = document.getElementById("picker-color-navy");
+      const hn = document.getElementById("hex-color-navy");
+      const cs = document.getElementById("picker-color-secondary");
+      const hs = document.getElementById("hex-color-secondary");
+      const ca = document.getElementById("picker-color-accent");
+      const ha = document.getElementById("hex-color-accent");
+
+      if (cp) cp.value = currentBranding.colorPrimary;
+      if (hp) hp.value = currentBranding.colorPrimary;
+      if (cn) cn.value = currentBranding.colorNavy;
+      if (hn) hn.value = currentBranding.colorNavy;
+      if (cs) cs.value = currentBranding.colorSecondary;
+      if (hs) hs.value = currentBranding.colorSecondary;
+      if (ca) ca.value = currentBranding.colorAccent;
+      if (ha) ha.value = currentBranding.colorAccent;
+
+      const previewLight = document.getElementById("branding-preview-light");
+      const previewDark = document.getElementById("branding-preview-dark");
+      const logoInfo = document.getElementById("branding-logo-info");
+      const btnRemove = document.getElementById("btn-remove-logo");
+
+      if (currentBranding.logoUrl) {
+        if (previewLight) previewLight.innerHTML = `<img src="${currentBranding.logoUrl}" alt="Logo" class="max-h-14 w-auto max-w-full object-contain">`;
+        if (previewDark) previewDark.innerHTML = `<img src="${currentBranding.logoUrl}" alt="Logo" class="max-h-14 w-auto max-w-full object-contain">`;
+        if (logoInfo) logoInfo.textContent = "Logotipo personalizado activo";
+        if (btnRemove) btnRemove.classList.remove("hidden");
+      } else {
+        if (previewLight) previewLight.innerHTML = `<span class="text-xs text-slate-400 font-medium">Logotipo predeterminado</span>`;
+        if (previewDark) previewDark.innerHTML = `<span class="text-xs text-sky-200/60 font-medium">Logotipo predeterminado</span>`;
+        if (logoInfo) logoInfo.textContent = "Usando logotipo predeterminado";
+        if (btnRemove) btnRemove.classList.add("hidden");
+      }
+    }
+
+    function syncColorInput(type, val) {
+      if (!val) return;
+      let hex = val.trim();
+      if (!hex.startsWith("#")) hex = "#" + hex;
+      if (hex.length === 4) {
+        hex = "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+      }
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+
+      if (type === "primary") {
+        currentBranding.colorPrimary = hex;
+        const p = document.getElementById("picker-color-primary");
+        const h = document.getElementById("hex-color-primary");
+        if (p) p.value = hex;
+        if (h) h.value = hex;
+      } else if (type === "navy") {
+        currentBranding.colorNavy = hex;
+        const p = document.getElementById("picker-color-navy");
+        const h = document.getElementById("hex-color-navy");
+        if (p) p.value = hex;
+        if (h) h.value = hex;
+      } else if (type === "secondary") {
+        currentBranding.colorSecondary = hex;
+        const p = document.getElementById("picker-color-secondary");
+        const h = document.getElementById("hex-color-secondary");
+        if (p) p.value = hex;
+        if (h) h.value = hex;
+      } else if (type === "accent") {
+        currentBranding.colorAccent = hex;
+        const p = document.getElementById("picker-color-accent");
+        const h = document.getElementById("hex-color-accent");
+        if (p) p.value = hex;
+        if (h) h.value = hex;
+      }
+
+      applyBranding(currentBranding);
+    }
+
+    function applyPresetPalette(primary, navy, secondary, accent) {
+      currentBranding.colorPrimary = primary;
+      currentBranding.colorNavy = navy;
+      currentBranding.colorSecondary = secondary;
+      currentBranding.colorAccent = accent;
+      applyBranding(currentBranding);
+      updateBrandingPreviewUI();
+    }
+
+    function handleLogoFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert("El archivo excede el tamaño máximo permitido (5 MB).");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const rawDataUrl = ev.target.result;
+
+        if (file.type && file.type.includes("svg")) {
+          currentBranding.logoUrl = rawDataUrl;
+          applyBranding(currentBranding);
+          updateBrandingPreviewUI();
+          return;
+        }
+
+        const img = new Image();
+        img.onload = () => {
+          const maxDimension = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          currentBranding.logoUrl = canvas.toDataURL("image/png", 0.9);
+          applyBranding(currentBranding);
+          updateBrandingPreviewUI();
+        };
+        img.src = rawDataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyLogoUrl() {
+      const input = document.getElementById("branding-url-input");
+      const url = input.value.trim();
+      if (!url) return;
+
+      currentBranding.logoUrl = url;
+      applyBranding(currentBranding);
+      updateBrandingPreviewUI();
+      input.value = "";
+    }
+
+    function removeCustomLogo() {
+      currentBranding.logoUrl = "";
+      applyBranding(currentBranding);
+      updateBrandingPreviewUI();
+    }
+
+    function resetBrandingDefaults() {
+      currentBranding = { ...DEFAULT_BRANDING };
+      applyBranding(currentBranding);
+      updateBrandingPreviewUI();
+    }
+
+    async function saveBrandingToFirestore() {
+      const btn = document.getElementById("btn-save-branding");
+      btn.disabled = true;
+      btn.innerHTML = `
+        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <span>Guardando...</span>
+      `;
+
+      try {
+        await db.collection("configuracion").doc("branding").set({
+          logoUrl: currentBranding.logoUrl || "",
+          colorPrimary: currentBranding.colorPrimary,
+          colorNavy: currentBranding.colorNavy,
+          colorSecondary: currentBranding.colorSecondary,
+          colorAccent: currentBranding.colorAccent,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        alert("¡Identidad visual y paleta de colores guardadas exitosamente en Firebase!");
+      } catch (err) {
+        console.error("Error al guardar branding:", err);
+        alert("Error al guardar en Firebase: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <span>Guardar Cambios</span>
+        `;
+      }
+    }
+
+    // ----------------------------------------------------
     // 2. ENRUTADOR PRINCIPAL SPA
     // ----------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
@@ -531,6 +1067,8 @@
     });
 
     async function initApp() {
+      await loadBranding();
+
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get("token");
 
@@ -540,6 +1078,7 @@
         handleAdminAccess();
       } else {
         window.location.hash = "#admin";
+        handleAdminAccess();
       }
     }
 
@@ -742,7 +1281,7 @@
       const labels = ["Muy insatisfecho", "Insatisfecho", "Neutral", "Satisfecho", "Muy satisfecho"];
       if (label) {
         label.innerHTML = `
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-fespa-red/10 text-fespa-red rounded text-xs font-bold uppercase tracking-wide border border-fespa-red/20">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-fespa-red rounded text-xs font-bold uppercase tracking-wide border border-red-200">
             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
               <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
             </svg>
@@ -996,7 +1535,7 @@
     }
 
     function switchAdminTab(tabName) {
-      ["campaigns", "questions", "responses", "metrics"].forEach(t => {
+      ["campaigns", "questions", "responses", "metrics", "branding"].forEach(t => {
         const contentEl = document.getElementById(`tab-content-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
         if (contentEl) contentEl.classList.add("hidden");
@@ -1018,6 +1557,8 @@
         renderMetricsDashboard();
       } else if (tabName === "responses") {
         renderResponsesTable();
+      } else if (tabName === "branding") {
+        updateBrandingPreviewUI();
       }
     }
 

@@ -8,6 +8,7 @@ Aplicación Single Page Application (SPA) para gestión de encuestas personaliza
 - **Módulo de Preguntas:** Soporta preguntas de 1 a 5 estrellas, selección múltiple y texto abierto.
 - **Gestor de Campañas (CSV):** Subida masiva con PapaParse que genera enlaces directos para compartir.
 - **Dashboard & Métricas:** Gráficas automáticas con Chart.js y exportación completa a `.csv`.
+- **Identidad Visual & Paleta de Colores:** Carga directa del logotipo oficial (PNG/SVG/WebP) y personalización dinámica de la paleta corporativa desde el panel administrativo con persistencia en Firebase Firestore (`configuracion/branding`).
 - **Panel Administrativo:** Protegido por PIN dinámico almacenado en Firebase Firestore (`configuracion/acceso`) y configurable directamente desde el panel.
 
 ---
