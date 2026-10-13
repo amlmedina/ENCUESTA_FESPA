@@ -704,6 +704,195 @@
 
   </main>
 
+  <!-- ==================== MODAL DE EDICIÓN DE PREGUNTA ==================== -->
+  <div id="modal-edit-question" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="text-base font-black text-slate-900 font-display uppercase tracking-tight">Editar Pregunta</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Modifica la formulación, orden y opciones de la pregunta.</p>
+        </div>
+        <button type="button" onclick="closeEditQuestionModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="edit-question-form" onsubmit="handleEditQuestionSubmit(event)" class="p-6 overflow-y-auto space-y-4 flex-1">
+        <input type="hidden" id="edit-q-id">
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Orden</label>
+            <input type="number" id="edit-q-orden" min="1" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none font-bold text-fespa-navy">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Tipo de Respuesta</label>
+            <select id="edit-q-type" onchange="handleEditQuestionTypeChange(this.value)" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none bg-white font-medium">
+              <option value="estrellas">1 a 5 Estrellas (Escala)</option>
+              <option value="opcion_multiple">Opción Múltiple</option>
+              <option value="abierta">Respuesta Abierta (Texto)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Texto de la Pregunta / Formulación</label>
+          <textarea id="edit-q-text" required rows="3" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Descripción o Aclaración <span class="text-slate-400 font-normal lowercase">(opcional)</span></label>
+          <input type="text" id="edit-q-desc" placeholder="Instrucciones adicionales para el participante..." class="w-full text-sm px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
+        </div>
+
+        <div id="edit-q-options-container" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Opciones (separadas por punto y coma)</label>
+          <textarea id="edit-q-options" rows="3" placeholder="Opción 1; Opción 2; Opción 3" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none"></textarea>
+          <span class="text-[11px] text-slate-400 font-medium">Separa cada opción con punto y coma (;).</span>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditQuestionModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-save-edit-question" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-red hover:bg-fespa-redDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL PARA CAMBIAR PIN DE ACCESO ==================== -->
+  <div id="modal-change-pin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-fespa-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900 font-display uppercase tracking-tight">Cambiar PIN de Acceso</h3>
+            <p class="text-[11px] text-slate-500">Actualiza la clave guardada en Firebase Firestore</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeChangePinModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="change-pin-form" onsubmit="handleChangePinSubmit(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">PIN Actual</label>
+          <input type="password" id="change-pin-current" placeholder="••••••••" required maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Nuevo PIN</label>
+          <input type="password" id="change-pin-new" placeholder="••••••••" required minlength="4" maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Mínimo 4 caracteres o dígitos numéricos.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Confirmar Nuevo PIN</label>
+          <input type="password" id="change-pin-confirm" placeholder="••••••••" required minlength="4" maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
+        </div>
+
+        <div id="change-pin-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+        <div id="change-pin-success" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+
+        <!-- Modal Footer -->
+        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeChangePinModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-save-change-pin" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
+            <span>Guardar Nuevo PIN</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL PARA CREAR TOKEN INDIVIDUAL ==================== -->
+  <div id="modal-create-token" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-fespa-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900 font-display uppercase tracking-tight">Crear Token Individual</h3>
+            <p class="text-[11px] text-slate-500">Genera un enlace único personalizado para un nuevo participante</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCreateTokenModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="create-token-form" onsubmit="handleCreateTokenSubmit(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">
+            Contacto / Identificador <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="individual-token-contact" placeholder="Ej: cliente@empresa.com o +52 55 1234 5678" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Email, teléfono o nombre del asistente que contestará.</p>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Código de Token Único</label>
+            <button type="button" onclick="regenerateIndividualTokenId()" class="text-[11px] font-bold text-fespa-navy hover:underline">
+              Regenerar código aleatorio
+            </button>
+          </div>
+          <input type="text" id="individual-token-id" oninput="updateIndividualTokenUrlPreview()" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none font-mono tracking-wide text-fespa-navy font-bold bg-slate-50">
+          <p class="text-[11px] text-slate-400 mt-1 font-medium">Puedes personalizar el código si lo deseas (alfanumérico sin espacios).</p>
+        </div>
+
+        <!-- Vista previa del enlace generado -->
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide block">Vista previa del enlace de encuesta:</span>
+          <div class="flex items-center gap-2">
+            <span id="individual-token-url-preview" class="text-xs font-mono text-slate-700 break-all select-all font-semibold bg-white p-2 rounded border border-slate-200 w-full"></span>
+          </div>
+        </div>
+
+        <div id="create-token-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+        <div id="create-token-success" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-medium leading-relaxed"></div>
+
+        <!-- Modal Footer -->
+        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeCreateTokenModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-save-individual-token" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
+            <span>Guardar y Crear Token</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
   <script>
     // ----------------------------------------------------
@@ -1454,8 +1643,11 @@
       document.getElementById("modal-change-pin").classList.add("hidden");
     }
 
-    document.getElementById("change-pin-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    async function handleChangePinSubmit(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const currentPinInput = document.getElementById("change-pin-current");
       const newPinInput = document.getElementById("change-pin-new");
       const confirmPinInput = document.getElementById("change-pin-confirm");
@@ -1463,40 +1655,56 @@
       const successBox = document.getElementById("change-pin-success");
       const saveBtn = document.getElementById("btn-save-change-pin");
 
-      errBox.classList.add("hidden");
-      successBox.classList.add("hidden");
+      if (errBox) {
+        errBox.textContent = "";
+        errBox.classList.add("hidden");
+      }
+      if (successBox) {
+        successBox.textContent = "";
+        successBox.classList.add("hidden");
+      }
 
-      const currentPin = currentPinInput.value.trim();
-      const newPin = newPinInput.value.trim();
-      const confirmPin = confirmPinInput.value.trim();
+      const currentPin = currentPinInput ? currentPinInput.value.trim() : "";
+      const newPin = newPinInput ? newPinInput.value.trim() : "";
+      const confirmPin = confirmPinInput ? confirmPinInput.value.trim() : "";
 
       if (newPin.length < 4) {
-        errBox.textContent = "El nuevo PIN debe tener al menos 4 caracteres.";
-        errBox.classList.remove("hidden");
-        return;
+        if (errBox) {
+          errBox.textContent = "El nuevo PIN debe tener al menos 4 caracteres.";
+          errBox.classList.remove("hidden");
+        }
+        return false;
       }
 
       if (newPin !== confirmPin) {
-        errBox.textContent = "El nuevo PIN y su confirmación no coinciden.";
-        errBox.classList.remove("hidden");
-        return;
+        if (errBox) {
+          errBox.textContent = "El nuevo PIN y su confirmación no coinciden.";
+          errBox.classList.remove("hidden");
+        }
+        return false;
       }
 
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = `
-        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-        <span>Guardando en Firebase...</span>
-      `;
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+          <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <span>Guardando en Firebase...</span>
+        `;
+      }
 
       try {
         const storedPin = await getFirebaseAdminPin();
         if (storedPin && currentPin !== storedPin) {
-          errBox.textContent = "El PIN actual ingresado no es correcto.";
-          errBox.classList.remove("hidden");
-          currentPinInput.focus();
-          saveBtn.disabled = false;
-          saveBtn.innerHTML = `<span>Guardar Nuevo PIN</span>`;
-          return;
+          if (errBox) {
+            errBox.textContent = "El PIN actual ingresado no es correcto.";
+            errBox.classList.remove("hidden");
+          }
+          if (currentPinInput) currentPinInput.focus();
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<span>Guardar Nuevo PIN</span>`;
+          }
+          return false;
         }
 
         await db.collection("configuracion").doc("acceso").set({
@@ -1504,24 +1712,34 @@
           actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        successBox.textContent = "¡El PIN ha sido actualizado exitosamente en Firebase!";
-        successBox.classList.remove("hidden");
+        if (successBox) {
+          successBox.textContent = "¡El PIN ha sido actualizado exitosamente en Firebase!";
+          successBox.classList.remove("hidden");
+        }
         setTimeout(() => {
           closeChangePinModal();
         }, 1500);
       } catch (err) {
         console.error("Error al actualizar PIN en Firebase:", err);
-        if (err.code === "permission-denied") {
-          errBox.textContent = "Error de permisos en Firebase. Asegúrate de incluir la regla: match /configuracion/{docId} { allow read, write: if true; }";
-        } else {
-          errBox.textContent = "Error al guardar en Firebase: " + (err.message || "Error desconocido");
+        if (errBox) {
+          if (err.code === "permission-denied") {
+            errBox.textContent = "Error de permisos en Firebase. Asegúrate de incluir la regla: match /configuracion/{docId} { allow read, write: if true; }";
+          } else {
+            errBox.textContent = "Error al guardar en Firebase: " + (err.message || "Error desconocido");
+          }
+          errBox.classList.remove("hidden");
         }
-        errBox.classList.remove("hidden");
       } finally {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = `<span>Guardar Nuevo PIN</span>`;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = `<span>Guardar Nuevo PIN</span>`;
+        }
       }
-    });
+      return false;
+    }
+    window.handleChangePinSubmit = handleChangePinSubmit;
+
+    document.getElementById("change-pin-form")?.addEventListener("submit", handleChangePinSubmit);
 
     function showAdminDashboard() {
       hideAllViews();
@@ -1571,17 +1789,37 @@
 
     function openCreateTokenModal() {
       const modal = document.getElementById("modal-create-token");
+      if (!modal) return;
       modal.classList.remove("hidden");
-      document.getElementById("create-token-form").reset();
-      document.getElementById("create-token-error").classList.add("hidden");
-      document.getElementById("create-token-success").classList.add("hidden");
+      const form = document.getElementById("create-token-form");
+      if (form) form.reset();
+      const errBox = document.getElementById("create-token-error");
+      if (errBox) {
+        errBox.textContent = "";
+        errBox.classList.add("hidden");
+      }
+      const successBox = document.getElementById("create-token-success");
+      if (successBox) {
+        successBox.textContent = "";
+        successBox.classList.add("hidden");
+      }
+      const submitBtn = document.getElementById("btn-save-individual-token");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+      }
       regenerateIndividualTokenId();
-      document.getElementById("individual-token-contact").focus();
+      setTimeout(() => {
+        document.getElementById("individual-token-contact")?.focus();
+      }, 50);
     }
+    window.openCreateTokenModal = openCreateTokenModal;
 
     function closeCreateTokenModal() {
-      document.getElementById("modal-create-token").classList.add("hidden");
+      const modal = document.getElementById("modal-create-token");
+      if (modal) modal.classList.add("hidden");
     }
+    window.closeCreateTokenModal = closeCreateTokenModal;
 
     function regenerateIndividualTokenId() {
       const tokenInput = document.getElementById("individual-token-id");
@@ -1590,6 +1828,7 @@
         updateIndividualTokenUrlPreview();
       }
     }
+    window.regenerateIndividualTokenId = regenerateIndividualTokenId;
 
     function updateIndividualTokenUrlPreview() {
       const tokenInput = document.getElementById("individual-token-id");
@@ -1599,47 +1838,90 @@
       const t = tokenInput.value.trim() || "...";
       preview.textContent = `${baseUrl}?token=${t}`;
     }
+    window.updateIndividualTokenUrlPreview = updateIndividualTokenUrlPreview;
 
-    document.getElementById("individual-token-id")?.addEventListener("input", updateIndividualTokenUrlPreview);
+    function copyIndividualTokenUrl(url) {
+      if (!url) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("¡Enlace copiado al portapapeles!\n\n" + url);
+        }).catch(() => {
+          fallbackCopyUrl(url);
+        });
+      } else {
+        fallbackCopyUrl(url);
+      }
+    }
+    function fallbackCopyUrl(url) {
+      const input = document.getElementById("saved-token-url-copy");
+      if (input) {
+        input.focus();
+        input.select();
+        document.execCommand("copy");
+        alert("¡Enlace copiado al portapapeles!");
+      } else {
+        prompt("Copia este enlace de encuesta:", url);
+      }
+    }
+    window.copyIndividualTokenUrl = copyIndividualTokenUrl;
 
-    document.getElementById("create-token-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    async function handleCreateTokenSubmit(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const contactInput = document.getElementById("individual-token-contact");
       const tokenInput = document.getElementById("individual-token-id");
       const errBox = document.getElementById("create-token-error");
       const successBox = document.getElementById("create-token-success");
       const submitBtn = document.getElementById("btn-save-individual-token");
 
-      errBox.classList.add("hidden");
-      successBox.classList.add("hidden");
+      if (errBox) {
+        errBox.textContent = "";
+        errBox.classList.add("hidden");
+      }
+      if (successBox) {
+        successBox.textContent = "";
+        successBox.classList.add("hidden");
+      }
 
-      const contact = contactInput.value.trim();
-      let token = tokenInput.value.trim().replace(/\s+/g, "_");
+      const contact = contactInput ? contactInput.value.trim() : "";
+      let token = tokenInput ? tokenInput.value.trim().replace(/\s+/g, "_") : "";
 
       if (!contact) {
-        errBox.textContent = "Por favor ingresa un contacto o identificador.";
-        errBox.classList.remove("hidden");
-        return;
+        if (errBox) {
+          errBox.textContent = "Por favor ingresa un contacto, correo o identificador.";
+          errBox.classList.remove("hidden");
+        }
+        if (contactInput) contactInput.focus();
+        return false;
       }
 
       if (!token) {
         token = generateUniqueToken();
+        if (tokenInput) tokenInput.value = token;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `
-        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-        <span>Guardando en Firebase...</span>
-      `;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <span>Guardando en Firebase...</span>
+        `;
+      }
 
       try {
         const existingDoc = await db.collection("tokens").doc(token).get();
         if (existingDoc.exists) {
-          errBox.textContent = `El token '${token}' ya existe. Por favor genera o escribe un código diferente.`;
-          errBox.classList.remove("hidden");
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
-          return;
+          if (errBox) {
+            errBox.textContent = `El token '${token}' ya existe en Firebase. Por favor genera o escribe un código diferente.`;
+            errBox.classList.remove("hidden");
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+          }
+          return false;
         }
 
         await db.collection("tokens").doc(token).set({
@@ -1652,30 +1934,55 @@
         const baseUrl = window.location.origin + window.location.pathname;
         const surveyLink = `${baseUrl}?token=${token}`;
 
-        successBox.innerHTML = `
-          <div class="space-y-1.5">
-            <p class="font-bold">¡Token creado exitosamente!</p>
-            <p class="text-[11px] text-emerald-800">Enlace generado:</p>
-            <div class="flex items-center gap-1.5 mt-1">
-              <input type="text" readonly value="${surveyLink}" class="bg-white text-slate-800 px-2 py-1 rounded text-[11px] font-mono flex-1 border border-emerald-300 select-all">
-              <button type="button" onclick="navigator.clipboard.writeText('${surveyLink}').then(() => alert('¡Enlace copiado al portapapeles!'))" class="px-2.5 py-1 bg-emerald-700 text-white rounded text-[11px] font-bold">Copiar</button>
+        if (successBox) {
+          successBox.innerHTML = `
+            <div class="space-y-2">
+              <div class="flex items-center gap-1.5 font-bold text-emerald-800 text-xs">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <span>¡Token creado y guardado en Firebase exitosamente!</span>
+              </div>
+              <p class="text-[11px] text-emerald-800 font-medium">Enlace personalizado listo para compartir:</p>
+              <div class="flex items-center gap-1.5 mt-1">
+                <input type="text" readonly value="${surveyLink}" id="saved-token-url-copy" class="bg-white text-slate-800 px-2.5 py-1.5 rounded text-[11px] font-mono flex-1 border border-emerald-300 select-all font-semibold">
+                <button type="button" onclick="copyIndividualTokenUrl('${surveyLink}')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[11px] font-bold transition flex items-center gap-1 flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  Copiar
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-        successBox.classList.remove("hidden");
+          `;
+          successBox.classList.remove("hidden");
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Listo</span>`;
+        }
 
         setTimeout(() => {
           closeCreateTokenModal();
-        }, 2200);
+          if (submitBtn) {
+            submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+          }
+        }, 4500);
+
       } catch (err) {
         console.error("Error al crear token individual:", err);
-        errBox.textContent = "Error al guardar en Firebase: " + (err.message || "Error desconocido");
-        errBox.classList.remove("hidden");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+        if (errBox) {
+          errBox.textContent = "Error al guardar en Firebase: " + (err.message || "Error desconocido");
+          errBox.classList.remove("hidden");
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Guardar y Crear Token</span>`;
+        }
       }
-    });
+      return false;
+    }
+    window.handleCreateTokenSubmit = handleCreateTokenSubmit;
+
+    document.getElementById("individual-token-id")?.addEventListener("input", updateIndividualTokenUrlPreview);
+    document.getElementById("create-token-form")?.addEventListener("submit", handleCreateTokenSubmit);
 
     async function handleCSVUpload(e) {
       const file = e.target.files[0];
@@ -2620,17 +2927,23 @@
       document.getElementById("modal-edit-question").classList.add("hidden");
     }
 
-    document.getElementById("edit-q-type")?.addEventListener("change", (e) => {
+    function handleEditQuestionTypeChange(val) {
       const optContainer = document.getElementById("edit-q-options-container");
-      if (e.target.value === "opcion_multiple") {
-        optContainer.classList.remove("hidden");
-      } else {
-        optContainer.classList.add("hidden");
+      if (optContainer) {
+        if (val === "opcion_multiple") {
+          optContainer.classList.remove("hidden");
+        } else {
+          optContainer.classList.add("hidden");
+        }
       }
-    });
+    }
+    window.handleEditQuestionTypeChange = handleEditQuestionTypeChange;
 
-    document.getElementById("edit-question-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    async function handleEditQuestionSubmit(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const qId = document.getElementById("edit-q-id").value;
       const orden = parseInt(document.getElementById("edit-q-orden").value, 10) || 1;
       const text = document.getElementById("edit-q-text").value.trim();
@@ -2643,13 +2956,15 @@
         opciones = rawOptions.split(";").map(o => o.trim()).filter(o => o.length > 0);
         if (opciones.length < 2) {
           alert("Ingresa al menos 2 opciones separadas por punto y coma (;).");
-          return;
+          return false;
         }
       }
 
       const saveBtn = document.getElementById("btn-save-edit-question");
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = `<span>Guardando...</span>`;
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<span>Guardando...</span>`;
+      }
 
       try {
         await db.collection("preguntas").doc(qId).update({
@@ -2667,10 +2982,17 @@
         console.error("Error al actualizar pregunta:", err);
         alert("Error al actualizar pregunta: " + err.message);
       } finally {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = `<span>Guardar Cambios</span>`;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = `<span>Guardar Cambios</span>`;
+        }
       }
-    });
+      return false;
+    }
+    window.handleEditQuestionSubmit = handleEditQuestionSubmit;
+
+    document.getElementById("edit-q-type")?.addEventListener("change", (e) => handleEditQuestionTypeChange(e.target.value));
+    document.getElementById("edit-question-form")?.addEventListener("submit", handleEditQuestionSubmit);
 
     // ----------------------------------------------------
     // EXPORTACIÓN DE RESPUESTAS A EXCEL (.xlsx)
@@ -2798,193 +3120,5 @@
         .replace(/'/g, "&#039;");
     }
   </script>
-  <!-- ==================== MODAL DE EDICIÓN DE PREGUNTA ==================== -->
-  <div id="modal-edit-question" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <div>
-          <h3 class="text-base font-black text-slate-900 font-display uppercase tracking-tight">Editar Pregunta</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Modifica la formulación, orden y opciones de la pregunta.</p>
-        </div>
-        <button onclick="closeEditQuestionModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <form id="edit-question-form" class="p-6 overflow-y-auto space-y-4 flex-1">
-        <input type="hidden" id="edit-q-id">
-
-        <div class="grid grid-cols-3 gap-3">
-          <div class="col-span-1">
-            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Orden</label>
-            <input type="number" id="edit-q-orden" min="1" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none font-bold text-fespa-navy">
-          </div>
-          <div class="col-span-2">
-            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Tipo de Respuesta</label>
-            <select id="edit-q-type" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none bg-white font-medium">
-              <option value="estrellas">1 a 5 Estrellas (Escala)</option>
-              <option value="opcion_multiple">Opción Múltiple</option>
-              <option value="abierta">Respuesta Abierta (Texto)</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Texto de la Pregunta / Formulación</label>
-          <textarea id="edit-q-text" required rows="3" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Descripción o Aclaración <span class="text-slate-400 font-normal lowercase">(opcional)</span></label>
-          <input type="text" id="edit-q-desc" placeholder="Instrucciones adicionales para el participante..." class="w-full text-sm px-3.5 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
-        </div>
-
-        <div id="edit-q-options-container" class="hidden">
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Opciones (separadas por punto y coma)</label>
-          <textarea id="edit-q-options" rows="3" placeholder="Opción 1; Opción 2; Opción 3" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none"></textarea>
-          <span class="text-[11px] text-slate-400 font-medium">Separa cada opción con punto y coma (;).</span>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeEditQuestionModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
-            Cancelar
-          </button>
-          <button type="submit" id="btn-save-edit-question" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-red hover:bg-fespa-redDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
-            <span>Guardar Cambios</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL PARA CAMBIAR PIN DE ACCESO ==================== -->
-  <div id="modal-change-pin" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-fespa-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-900 font-display uppercase tracking-tight">Cambiar PIN de Acceso</h3>
-            <p class="text-[11px] text-slate-500">Actualiza la clave guardada en Firebase Firestore</p>
-          </div>
-        </div>
-        <button onclick="closeChangePinModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <form id="change-pin-form" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">PIN Actual</label>
-          <input type="password" id="change-pin-current" placeholder="••••••••" required maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Nuevo PIN</label>
-          <input type="password" id="change-pin-new" placeholder="••••••••" required minlength="4" maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
-          <p class="text-[11px] text-slate-400 mt-1 font-medium">Mínimo 4 caracteres o dígitos numéricos.</p>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Confirmar Nuevo PIN</label>
-          <input type="password" id="change-pin-confirm" placeholder="••••••••" required minlength="4" maxlength="16" class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none tracking-widest font-mono">
-        </div>
-
-        <div id="change-pin-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium leading-relaxed"></div>
-        <div id="change-pin-success" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-medium leading-relaxed"></div>
-
-        <!-- Modal Footer -->
-        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeChangePinModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
-            Cancelar
-          </button>
-          <button type="submit" id="btn-save-change-pin" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
-            <span>Guardar Nuevo PIN</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL PARA CREAR TOKEN INDIVIDUAL ==================== -->
-  <div id="modal-create-token" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-lg w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-fespa-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-900 font-display uppercase tracking-tight">Crear Token Individual</h3>
-            <p class="text-[11px] text-slate-500">Genera un enlace único personalizado para un nuevo participante</p>
-          </div>
-        </div>
-        <button onclick="closeCreateTokenModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <form id="create-token-form" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">
-            Contacto / Identificador <span class="text-rose-500">*</span>
-          </label>
-          <input type="text" id="individual-token-contact" placeholder="Ej: cliente@empresa.com o +52 55 1234 5678" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none">
-          <p class="text-[11px] text-slate-400 mt-1 font-medium">Email, teléfono o nombre del asistente que contestará.</p>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Código de Token Único</label>
-            <button type="button" onclick="regenerateIndividualTokenId()" class="text-[11px] font-bold text-fespa-navy hover:underline">
-              Regenerar código aleatorio
-            </button>
-          </div>
-          <input type="text" id="individual-token-id" required class="w-full text-sm px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-fespa-navy focus:border-fespa-navy focus:outline-none font-mono tracking-wide text-fespa-navy font-bold bg-slate-50">
-          <p class="text-[11px] text-slate-400 mt-1 font-medium">Puedes personalizar el código si lo deseas (alfanumérico sin espacios).</p>
-        </div>
-
-        <!-- Vista previa del enlace generado -->
-        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Vista previa del enlace de encuesta:</span>
-          <div class="flex items-center gap-2">
-            <span id="individual-token-url-preview" class="text-xs font-mono text-slate-700 break-all select-all font-semibold bg-white p-2 rounded border border-slate-200 w-full"></span>
-          </div>
-        </div>
-
-        <div id="create-token-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg font-medium leading-relaxed"></div>
-        <div id="create-token-success" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-medium leading-relaxed"></div>
-
-        <!-- Modal Footer -->
-        <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeCreateTokenModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
-            Cancelar
-          </button>
-          <button type="submit" id="btn-save-individual-token" class="px-5 py-2.5 text-xs font-black uppercase tracking-wider bg-fespa-navy hover:bg-fespa-navyDark text-white rounded-lg transition shadow-sm flex items-center gap-1.5">
-            <span>Guardar y Crear Token</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 </body>
 </html>
